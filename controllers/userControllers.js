@@ -61,6 +61,42 @@ module.exports.login = (req,res) => {
 	)
 }
 
+// check if email already exists
+module.exports.checkEmail = (req,res) => {
+    let email = req.body.email;
+
+	let sql = `SELECT * FROM users WHERE email='${email}'`
+
+	db.query(sql, (err,result) => {
+		if(err) throw err;
+        // if email already exists, send true
+		if(result.length === 1){
+            res.send(true)
+        } else {
+            res.send(false)
+        }
+	}
+	)
+}
+
+// check if username exists
+module.exports.checkUsername = (req,res) => {
+    let username = req.body.username;
+
+	let sql = `SELECT * FROM users WHERE username='${username}'`
+
+	db.query(sql, (err,result) => {
+		if(err) throw err;
+        // if username already exists, send true
+		if(result.length === 1){
+            res.send(true)
+        } else {
+            res.send(false)
+        }
+	}
+	)
+}
+
 // get user details
 module.exports.getDetails = (req,res) => {
     let sql = `SELECT user_id, username, email, role FROM users WHERE user_id=${req.user.user_id}`
