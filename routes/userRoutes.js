@@ -4,7 +4,7 @@ const router = express.Router();
 
 const userControllers = require("../controllers/userControllers");
 
-const { verify } = auth;
+const { verify, verifyAdmin } = auth;
 
 //register
 router.post("/register",userControllers.register);
@@ -13,6 +13,6 @@ router.post("/register",userControllers.register);
 router.post("/login", userControllers.login);
 
 //get user details
-router.get("/getUserDetails", verify, userControllers.getDetails);
+router.get("/getUserDetails", verify, verifyAdmin, userControllers.getDetails);
 
 module.exports = router;

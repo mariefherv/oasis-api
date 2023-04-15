@@ -63,7 +63,7 @@ module.exports.login = (req,res) => {
 
 // get user details
 module.exports.getDetails = (req,res) => {
-    let sql = `SELECT user_id, username, email FROM users WHERE user_id=${req.user.user_id}`
+    let sql = `SELECT user_id, username, email, role FROM users WHERE user_id=${req.user.user_id}`
     db.query(sql, (err,result) => {
         if(err) throw err;
         res.send(result)

@@ -1,11 +1,13 @@
 const jwt = require("jsonwebtoken");
 
-const secret = "carelulu";
+const secret = "safespace";
 
 module.exports.createAccessToken = (userDetails) => {
 	const data = {
 		user_id: userDetails.user_id,
+		username: userDetails.username,
 		email: userDetails.email,
+		role: userDetails.role,
 	}
 	//jwt.sign() will create a JWT using our data object, with our secret.
 	return jwt.sign(data,secret,{});
@@ -35,5 +37,17 @@ module.exports.verify = (req,res,next) => {
 		})
 	}
 
+}
+
+// Verify if authenticated user is an admin
+module.exports.verifyAdmin = (req,res,next) => {
+    if(req.user.role === 'Admin'){
+        next();
+    } else {
+        return res.send({
+            auth: "Failed",
+            message: "No permission"
+        })
+    }
 }
 
