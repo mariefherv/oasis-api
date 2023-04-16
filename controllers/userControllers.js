@@ -1,6 +1,7 @@
 const db = require('../index');
 const bcrypt = require('bcrypt');
 const auth = require("../auth");
+const { v4: uuidv4 } = require('uuid')
 
 // register new user
 module.exports.register = (req,res) => {
@@ -14,8 +15,10 @@ module.exports.register = (req,res) => {
         // if email isn't used yet, continue registration
 		if(result.length === 0){
             const hashedPw = bcrypt.hashSync(req.body.password,10)
+            const id = uuidv4()
 
             let user = {
+                user_id: id,
                 username:req.body.username,
                 email:req.body.email,
                 password:hashedPw
@@ -23,11 +26,10 @@ module.exports.register = (req,res) => {
 
             sql = 'INSERT INTO users SET ?'
 
-            db.query(sql, user, (err,result) => {
+            db.query(sql, user, (err) => {
                 if(err) throw err;
                 // after registering, generate access token
-                let id = result.insertId
-                let new_sql = `SELECT * FROM users WHERE user_id=${id}`
+                let new_sql = `SELECT * FROM users WHERE user_id='${id}'`
                 db.query(new_sql, (err,result) => {
                     if(err) throw err;
                     res.send({accessToken: auth.createAccessToken(result[0])})
