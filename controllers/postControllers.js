@@ -267,6 +267,19 @@ module.exports.checkLike = (req, res) => {
     )
 }
 
+// Count number of likes of a certain post
+module.exports.countLikes = (req, res) => {
+    const post_id = req.params.post_id
+
+    let sql = `SELECT COUNT(like_id) AS count FROM likes WHERE post_id='${post_id}'`
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
+
 // Like a comment
 module.exports.likeComment = (req,res) => {
     const id = uuidv4()
@@ -329,6 +342,19 @@ module.exports.checkLikeComment = (req, res) => {
     const comment_id = req.params.comment_id
 
     let sql = `SELECT users.user_id, users.username FROM users INNER JOIN comment_likes ON users.user_id=comment_likes.user_id WHERE comment_likes.comment_id='${comment_id}' AND comment_likes.user_id = '${user_id}'`
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
+
+// Count number of likes of a certain comment
+module.exports.countCommentLikes = (req, res) => {
+    const comment_id = req.params.comment_id
+
+    let sql = `SELECT COUNT(like_id) AS count FROM comment_likes WHERE comment_id='${comment_id}'`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;

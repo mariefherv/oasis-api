@@ -45,6 +45,9 @@ router.delete("/unlike/:post_id", verify, postControllers.unlikePost)
 // check if user has liked the post
 router.get("/checkLike/:post_id", verify, postControllers.checkLike)
 
+// count number of likes of a post
+router.get("/countLikes/:post_id", verify, postControllers.countLikes)
+
 // like a comment
 router.post("/comment/like/:comment_id", verify, postControllers.likeComment)
 
@@ -53,5 +56,8 @@ router.delete("/comment/unlike/:comment_id", verify, postControllers.unlikeComme
 
 // check if user has liked the comment
 router.get("/comment/checkLike/:comment_id", verify, postControllers.checkLikeComment)
+
+// count number of likes of a comment
+router.get("/comment/countLikes/:comment_id", verify, postControllers.countCommentLikes)
 
 module.exports = router;
