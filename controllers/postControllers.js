@@ -1,9 +1,20 @@
 const db = require('../index');
 const { v4: uuidv4 } = require('uuid')
 
+// view all posts
+module.exports.viewAll = (req,res) => {
+    let sql = `SELECT * FROM posts ORDER BY date_posted ASC`
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
+
 // view a specific post
 module.exports.view = (req,res) => {
-    const post_id = req.body.post_id
+    const post_id = req.params.post_id
 
     let sql = `SELECT * FROM posts WHERE post_id='${post_id}'`
 
@@ -16,7 +27,7 @@ module.exports.view = (req,res) => {
 
 // view posts from a specific user
 module.exports.viewByUser = (req,res) => {
-    const user_id = req.body.user_id
+    const user_id = req.params.user_id
 
     let sql = `SELECT * FROM posts WHERE user_id='${user_id}' ORDER BY date_posted ASC`
     
@@ -171,4 +182,11 @@ module.exports.deleteComment = (req,res) => {
 			res.send(false)
 		}
 	})
+}
+
+// Like a post
+module.exports.likePost = (req,res) => {
+
+
+
 }

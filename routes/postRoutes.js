@@ -7,10 +7,13 @@ const postControllers = require("../controllers/postControllers");
 const { verify, verifyAdmin } = auth;
 
 //view a post
-router.post("/view", verify, postControllers.view);
+router.get("/view/:post_id", verify, postControllers.view);
+
+// view all posts
+router.get("/viewAll", verify, postControllers.viewAll);
 
 //view post by User
-router.post("/viewByUser", verify, postControllers.viewByUser);
+router.get("/viewByUser/:user_id", verify, postControllers.viewByUser);
 
 //create post
 router.post("/create", verify, postControllers.create);
