@@ -24,6 +24,9 @@ router.post("/edit/:post_id", verify, postControllers.edit);
 // delete post
 router.delete("/delete/:post_id", verify, postControllers.delete);
 
+// view all comments on a post
+router.get("/comment/:post_id", verify, postControllers.viewComments);
+
 // comment on a post
 router.post("/comment/:post_id", verify, postControllers.comment);
 
@@ -41,5 +44,14 @@ router.delete("/unlike/:post_id", verify, postControllers.unlikePost)
 
 // check if user has liked the post
 router.get("/checkLike/:post_id", verify, postControllers.checkLike)
+
+// like a comment
+router.post("/comment/like/:comment_id", verify, postControllers.likeComment)
+
+// unlike a comment
+router.delete("/comment/unlike/:comment_id", verify, postControllers.unlikeComment)
+
+// check if user has liked the comment
+router.get("/comment/checkLike/:comment_id", verify, postControllers.checkLikeComment)
 
 module.exports = router;
