@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid')
 
 // view all posts
 module.exports.viewAll = (req,res) => {
-    let sql = `SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id ORDER BY date_posted ASC`
+    let sql = `SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id ORDER BY date_posted DESC`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
