@@ -19,6 +19,15 @@ router.post("/create", verify, postControllers.create);
 router.post("/edit/:post_id", verify, postControllers.edit);
 
 // delete post
-router.delete("/delete/:post_id", verify, postControllers.edit);
+router.delete("/delete/:post_id", verify, postControllers.delete);
+
+// comment on a post
+router.post("/comment/:post_id", verify, postControllers.comment);
+
+// edit comment
+router.post("/comment/edit/:comment_id", verify, postControllers.editComment);
+
+// delete comment
+router.delete("/comment/delete/:comment_id", verify, postControllers.deleteComment);
 
 module.exports = router;

@@ -82,11 +82,93 @@ module.exports.edit = (req,res) => {
 module.exports.delete = (req,res) => {
     const post_id = req.params.post_id
 
-    let sql = `DELETE FROM posts WHERE user_id='${req.user.user_id}' AND post_id='${post_id}'`
+    let sql = `SELECT * FROM posts WHERE user_id='${req.user.user_id}' AND post_id='${post_id}'`
 
     db.query(sql, (err, result) => {
 		if(err) throw err;
-            res.send(true)
+		if(result.length !== 0){
+            sql = `DELETE FROM posts WHERE post_id='${post_id}'`
+
+            db.query(sql, (err, result) => {
+                if(err) throw err;
+                    res.send(true)
+                }
+            )
+		} else {
+			res.send(false)
+		}
+	})
+}
+
+// comment on a post
+module.exports.comment = (req,res) => {
+    const user_id = req.user.user_id
+    const post_id = req.params.post_id
+    const datetime = new Date()
+    const id = uuidv4()
+
+	let comment = {
+        comment_id: id,
+        user_id: user_id,
+		post_id: post_id,
+        content: req.body.content,
+        date_commented: datetime
+	}
+
+	let sql = 'INSERT INTO comments SET ?'
+
+	db.query(sql, comment, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+	)
+}
+
+// edit comment
+module.exports.editComment = (req,res) => {
+    const comment_id = req.params.comment_id
+    const datetime = new Date()
+
+    let sql = `SELECT * FROM comments WHERE user_id='${req.user.user_id}' AND comment_id='${comment_id}'`
+
+    db.query(sql, (err, result) => {
+        if(err) throw err;
+		if(result.length !== 0){
+            let comment = {
+                content: req.body.content,
+                date_commented: datetime
+            }
+
+            let sql = `UPDATE comments SET ? WHERE user_id='${req.user.user_id}' AND comment_id='${comment_id}'`
+
+            db.query(sql, comment, (err, result) => {
+                if(err) throw err;
+                res.send(true)
+            })
+        } else {
+            res.send(false)
         }
-    )
+    })
+}
+
+// Delete a comment
+module.exports.deleteComment = (req,res) => {
+    const comment_id = req.params.comment_id
+
+    let sql = `SELECT * FROM comments WHERE user_id='${req.user.user_id}' AND comment_id='${comment_id}'`
+
+    db.query(sql, (err, result) => {
+		if(err) throw err;
+		if(result.length !== 0){
+            sql = `DELETE FROM comments WHERE user_id='${req.user.user_id}' AND comment_id='${comment_id}'`
+
+            db.query(sql, (err, result) => {
+                if(err) throw err;
+                    res.send(true)
+                }
+            )
+		} else {
+			res.send(false)
+		}
+	})
 }
