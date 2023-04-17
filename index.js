@@ -30,7 +30,11 @@ module.exports = db; //export connection
 
 // for user routes
 const userRoutes = require('./routes/userRoutes')
-app.use('/user',userRoutes);
+app.use('/user', userRoutes);
+
+// for post routes
+const postRoutes = require('./routes/postRoutes')
+app.use('/post', postRoutes);
 
 
 app.listen(port,()=>console.log(`API is running on localhost:${process.env.PORT}`))

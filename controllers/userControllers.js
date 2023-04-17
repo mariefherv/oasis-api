@@ -100,10 +100,52 @@ module.exports.checkUsername = (req,res) => {
 }
 
 // get user details
-module.exports.getDetails = (req,res) => {
-    let sql = `SELECT user_id, username, email, role FROM users WHERE user_id=${req.user.user_id}`
+module.exports.getDetails = (req, res) => {
+    let sql = `SELECT user_id, username, email, role FROM users WHERE user_id='${req.user.user_id}'`
     db.query(sql, (err,result) => {
         if(err) throw err;
         res.send(result)
     })
+}
+
+// get list of users
+module.exports.getUsers = (req, res) => {
+    let sql = `SELECT user_id, username, email, role FROM users`
+    db.query(sql, (err,result) => {
+        if(err) throw err;
+        res.send(result)
+    })
+}
+
+// make a user into a therapist
+module.exports.toTherapist = (req,res) => {
+    let user_id = req.body.user_id;
+
+	let sql = `SELECT * FROM therapists WHERE user_id='${user_id}'`
+
+    // Confirm first if user is not yet a therapist
+	db.query(sql, (err,result) => {
+		if(err) throw err;
+        // if no existing record, proceed
+		if(result.length === 0){
+
+            let therapist = {
+                user_id: user_id
+            }
+
+            sql = 'INSERT INTO therapists SET ?'
+
+            db.query(sql, therapist, (err) => {
+                if(err) throw err;
+                // after registering, generate access token
+                let new_sql = `UPDATE users SET role="Therapist" WHERE user_id='${therapist.user_id}'`
+                db.query(new_sql, (err,result) => {
+                    if(err) throw err;
+                    res.send(true)
+            })})
+        } else {
+            res.send(false)
+        }
+	}
+	)
 }
