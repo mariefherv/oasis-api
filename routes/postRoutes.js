@@ -33,4 +33,13 @@ router.post("/comment/edit/:comment_id", verify, postControllers.editComment);
 // delete comment
 router.delete("/comment/delete/:comment_id", verify, postControllers.deleteComment);
 
+// like a post
+router.post("/like/:post_id", verify, postControllers.likePost)
+
+// unlike a post
+router.delete("/unlike/:post_id", verify, postControllers.unlikePost)
+
+// check if user has liked the post
+router.get("/checkLike/:post_id", verify, postControllers.checkLike)
+
 module.exports = router;
