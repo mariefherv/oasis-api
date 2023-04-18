@@ -10,7 +10,10 @@ const { verify, verifyAdmin } = auth;
 router.get("/view/:post_id", verify, postControllers.view);
 
 // view all posts
-router.get("/viewAll", verify, postControllers.viewAll);
+router.get("/viewAllByRecent", verify, postControllers.viewAll);
+
+// view all posts
+router.get("/viewAllByLikes", verify, postControllers.viewAllByLikes);
 
 //view post by User
 router.get("/viewByUser/:user_id", verify, postControllers.viewByUser);

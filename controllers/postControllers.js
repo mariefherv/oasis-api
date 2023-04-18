@@ -1,9 +1,20 @@
 const db = require('../index');
 const { v4: uuidv4 } = require('uuid')
 
-// view all posts
+// view all posts sort by recency
 module.exports.viewAll = (req,res) => {
     let sql = `SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id ORDER BY date_posted DESC`
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
+
+// view all posts sort by likes
+module.exports.viewAllByLikes = (req,res) => {
+    let sql = `SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id ORDER BY (SELECT COUNT(like_id) FROM likes WHERE posts.post_id = likes.post_id) DESC`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
@@ -362,3 +373,4 @@ module.exports.countCommentLikes = (req, res) => {
 	}
     )
 }
+
