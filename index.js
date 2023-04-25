@@ -36,5 +36,9 @@ app.use('/user', userRoutes);
 const postRoutes = require('./routes/postRoutes')
 app.use('/post', postRoutes);
 
+// for contact routes
+const contactRoutes = require('./routes/contactRoutes')
+app.use('/contact', contactRoutes);
+
 
 app.listen(port,()=>console.log(`API is running on localhost:${process.env.PORT}`))
