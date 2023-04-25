@@ -91,58 +91,11 @@ module.exports.sendMessage = (req,res) => {
 
 	let sql = 'INSERT INTO messages SET ?'
 
-    console.log(sql)
-
 	db.query(sql, message, (err,result) => {
 		if(err) throw err;
 		res.send(result)
 	}
 	)
-    //         let contact_id = result[0].contact_id
-    //         let contact_person_id = result[0].contact_person_id
-
-	// 		let message = {
-    //             content: req.body.content,
-    //             contact_id: contact_id,
-    //             sender_id: user_id,
-    //             receiver_id: contact_person_id
-	// 		}
-
-	// 		let insert_sql = 'INSERT INTO messages SET ?'
-
-	// 		db.query(insert_sql, message, (err,result) => {
-	// 			if(err) throw err;
-	// 			res.send(true)
-	// 		})
-	// 	} else {
-    //         sql = `SELECT contacts.contact_id, contacts.user_id FROM contacts INNER JOIN users ON users.user_id = contacts.user_id WHERE contacts.contact_person_id = '${user_id}'`
-
-    //         db.query(sql, (err,result) => {
-	// 			if(err) throw err;
-	// 			if(result.length !== 0){
-    //                 let contact_id = result[0].contact_id
-    //                 let contact_person_id = result[0].user_id
-
-    //                 let message = {
-    //                     content: req.body.content,
-    //                     contact_id: contact_id,
-    //                     sender_id: user_id,
-    //                     receiver_id: contact_person_id
-    //                 }
-
-    //                 let insert_sql = 'INSERT INTO messages SET ?'
-
-    //                 db.query(insert_sql, message, (err,result) => {
-    //                     if(err) throw err;
-    //                     res.send(true)
-    //                 })
-    //             } else {
-    //                 res.send(false)
-    //             }
-	// 		})
-
-	// 	}
-
 }
 
 // view all messages
