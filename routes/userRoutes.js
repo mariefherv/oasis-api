@@ -25,6 +25,6 @@ router.post("/checkEmail", userControllers.checkEmail)
 router.post("/checkUsername", userControllers.checkUsername)
 
 // user to therapist
-router.post("/toTherapist", verify, verifyAdmin, userControllers.toTherapist)
+router.post("/toTherapist/:user_id", verify, verifyAdmin, userControllers.toTherapist)
 
 module.exports = router;

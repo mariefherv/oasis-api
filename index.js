@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
 
-// Create connection
+// Create connection to local database
 const db = mysql.createConnection({
     host : 'localhost',
     user: 'root',
@@ -19,11 +19,20 @@ const db = mysql.createConnection({
     database: 'oasis'
 });
 
+// Create connection to online database
+// const db = mysql.createConnection({
+//     host : 'db4free.net',
+//     port : 3306,
+//     user: 'mariefherv',
+//     password : 'Password!',
+//     database: 'oasis_db'
+// });
+
 // Connect to MySQL Database
 db.connect((err) => {
-    if(err) console.log("Unable to connect to MySQL");
-    
-    console.log('Connected to MySQL.')
+    err? console.log("Unable to connect to MySQL")
+    :
+    console.log('Connected to MySQL database')
 })
 
 module.exports = db; //export connection
@@ -39,6 +48,10 @@ app.use('/post', postRoutes);
 // for contact routes
 const contactRoutes = require('./routes/contactRoutes')
 app.use('/contact', contactRoutes);
+
+// for therapist routes
+const therapistRoutes = require('./routes/therapistRoutes')
+app.use('/therapist', therapistRoutes);
 
 
 app.listen(port,()=>console.log(`API is running on localhost:${process.env.PORT}`))

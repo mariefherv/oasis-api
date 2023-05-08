@@ -119,7 +119,7 @@ module.exports.getUsers = (req, res) => {
 
 // make a user into a therapist
 module.exports.toTherapist = (req,res) => {
-    let user_id = req.body.user_id;
+    let user_id = req.params.user_id;
 
 	let sql = `SELECT * FROM therapists WHERE user_id='${user_id}'`
 
@@ -130,7 +130,18 @@ module.exports.toTherapist = (req,res) => {
 		if(result.length === 0){
 
             let therapist = {
-                user_id: user_id
+                user_id: user_id,
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                prefix: req.body.prefix,
+                suffix: req.body.suffix,
+                field: req.body.field,
+                description: req.body.description,
+                online: req.body.online,
+                in_person: req.body.in_person,
+                fb_link: req.body.fb_link,
+                twt_link: req.body.twt_link,
+                li_link: req.body.li_link
             }
 
             sql = 'INSERT INTO therapists SET ?'
