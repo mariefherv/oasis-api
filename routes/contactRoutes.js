@@ -15,6 +15,15 @@ router.get("/viewAll", verify, contactControllers.viewAll);
 // add contact
 router.post("/addContact/:contact_person_id", verify, contactControllers.addContact);
 
+// remove contact
+router.post("/removeContact/:contact_person_id", verify, contactControllers.removeContact);
+
+// block contact
+router.post("/blockContact/:contact_person_id", verify, contactControllers.blockContact);
+
+// unblock contact
+router.post("/unblockContact/:contact_person_id", verify, contactControllers.unblockContact);
+
 // send person a message
 router.post("/sendMessage/:contact_person_id", verify, contactControllers.sendMessage)
 
