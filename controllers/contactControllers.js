@@ -102,13 +102,28 @@ module.exports.removeContact = (req, res) => {
 module.exports.blockContact = (req, res) => {
     const user_id = req.user.user_id
     const contact_person_id = req.params.contact_person_id
-
+    const id = uuidv4()
+    
     let sql = `SELECT contact_id FROM contacts WHERE (user_id = '${user_id}' AND contact_person_id = '${contact_person_id}') OR (user_id = '${contact_person_id}' AND contact_person_id = '${user_id}')`
 
     db.query(sql, (err, result) => {
         if(err) throw err;
         if(result.length === 0) {
-            res.send(false)
+            let contact = {
+                contact_id: id,
+                contact_person_id: contact_person_id,
+                user_id: user_id,
+                status: 'BLOCKED',
+                blocked_by: user_id
+            }
+        
+            sql = 'INSERT INTO contacts SET ?'
+        
+            db.query(sql, contact, (err,result) => {
+                if(err) throw err;
+                res.send(result)
+            }
+            )
         } else {
             const contact_id = result[0].contact_id
 
