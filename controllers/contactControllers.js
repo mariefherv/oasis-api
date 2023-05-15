@@ -5,12 +5,12 @@ const { v4: uuidv4 } = require('uuid')
 module.exports.viewAll = (req,res) => {
     const user_id = req.user.user_id
 
-    let sql = `SELECT users.username, contacts.contact_id FROM contacts INNER JOIN users ON users.user_id = contacts.contact_person_id WHERE contacts.user_id = '${user_id}' AND contacts.status = 'ACTIVE'`
+    let sql = `SELECT users.username, contacts.contact_id, contacts.status FROM contacts INNER JOIN users ON users.user_id = contacts.contact_person_id WHERE contacts.user_id = '${user_id}'`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
         if(result.length === 0){
-            sql = `SELECT users.username, contacts.contact_id FROM contacts INNER JOIN users ON users.user_id = contacts.user_id WHERE contacts.contact_person_id = '${user_id}' AND contacts.status = 'ACTIVE'`
+            sql = `SELECT users.username, contacts.contact_id, contacts.status FROM contacts INNER JOIN users ON users.user_id = contacts.user_id WHERE contacts.contact_person_id = '${user_id}'`
 
             db.query(sql, (err,result) => {
 				if(err) throw err;
@@ -26,9 +26,9 @@ module.exports.viewAll = (req,res) => {
 // view a contact
 module.exports.viewContact = (req,res) => {
     const user_id = req.user.user_id
-    const contact_id = req.params.contact_id
+    const contact_person_id = req.params.contact_person_id
 
-    let sql = `SELECT * FROM contacts WHERE contact_id = '${contact_id}' AND user_id = '${user_id}'`
+    let sql = `SELECT * FROM contacts WHERE(user_id = '${user_id}' AND contact_person_id = '${contact_person_id}') OR (user_id = '${contact_person_id}' AND contact_person_id = '${user_id}')`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
@@ -58,7 +58,7 @@ module.exports.addContact = (req,res) => {
         
             db.query(sql, contact, (err,result) => {
                 if(err) throw err;
-                res.send(result)
+                result.affectedRows !== 0 ? res.send({status:"ACTIVE"}) : res.send(false)
             }
             )
         } else {
@@ -68,7 +68,7 @@ module.exports.addContact = (req,res) => {
             
             db.query(sql, (err, result) => {
                 if(err) throw err;
-                res.send(result)
+                result.changedRows !== 0 ? res.send({status:"ACTIVE"}) : res.send(false)
             })
         }
     })
@@ -92,7 +92,7 @@ module.exports.removeContact = (req, res) => {
             
             db.query(sql, (err, result) => {
                 if(err) throw err;
-                res.send(result)
+                result.changedRows !== 0 ? res.send({status:"INACTIVE"}) : res.send(false)
             })
         }
     })
@@ -103,7 +103,7 @@ module.exports.blockContact = (req, res) => {
     const user_id = req.user.user_id
     const contact_person_id = req.params.contact_person_id
     const id = uuidv4()
-    
+
     let sql = `SELECT contact_id FROM contacts WHERE (user_id = '${user_id}' AND contact_person_id = '${contact_person_id}') OR (user_id = '${contact_person_id}' AND contact_person_id = '${user_id}')`
 
     db.query(sql, (err, result) => {
@@ -121,7 +121,7 @@ module.exports.blockContact = (req, res) => {
         
             db.query(sql, contact, (err,result) => {
                 if(err) throw err;
-                res.send(result)
+                res.send({status:"BLOCKED"})
             }
             )
         } else {
@@ -131,7 +131,7 @@ module.exports.blockContact = (req, res) => {
             
             db.query(sql, (err, result) => {
                 if(err) throw err;
-                res.send(result)
+                result.changedRows !== 0 ? res.send({status:"BLOCKED"}) : res.send(false)
             })
         }
     })
@@ -155,7 +155,7 @@ module.exports.unblockContact = (req, res) => {
             
             db.query(sql, (err, result) => {
                 if(err) throw err;
-                res.send(result)
+                result.changedRows !== 0 ? res.send({status:"INACTIVE"}) : res.send(false)
             })
         }
     })

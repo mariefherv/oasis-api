@@ -3,6 +3,8 @@ const { v4: uuidv4 } = require('uuid')
 
 // view all posts sort by recency
 module.exports.viewAll = (req,res) => {
+    const user_id = req.user.user_id
+
     let sql = `SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id ORDER BY date_posted DESC`
 
     db.query(sql, (err,result) => {

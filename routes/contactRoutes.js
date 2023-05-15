@@ -7,22 +7,22 @@ const contactControllers = require("../controllers/contactControllers");
 const { verify, verifyAdmin } = auth;
 
 // view a contact
-router.get("/view/:contact_id", verify, contactControllers.viewContact);
+router.get("/view/:contact_person_id", verify, contactControllers.viewContact);
 
 // view all contacts
 router.get("/viewAll", verify, contactControllers.viewAll);
 
 // add contact
-router.post("/addContact/:contact_person_id", verify, contactControllers.addContact);
+router.put("/addContact/:contact_person_id", verify, contactControllers.addContact);
 
 // remove contact
-router.post("/removeContact/:contact_person_id", verify, contactControllers.removeContact);
+router.patch("/removeContact/:contact_person_id", verify, contactControllers.removeContact);
 
 // block contact
-router.post("/blockContact/:contact_person_id", verify, contactControllers.blockContact);
+router.put("/blockContact/:contact_person_id", verify, contactControllers.blockContact);
 
 // unblock contact
-router.post("/unblockContact/:contact_person_id", verify, contactControllers.unblockContact);
+router.patch("/unblockContact/:contact_person_id", verify, contactControllers.unblockContact);
 
 // send person a message
 router.post("/sendMessage/:contact_person_id", verify, contactControllers.sendMessage)
