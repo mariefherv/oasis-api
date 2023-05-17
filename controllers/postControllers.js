@@ -5,7 +5,23 @@ const { v4: uuidv4 } = require('uuid')
 module.exports.viewAll = (req,res) => {
     const user_id = req.user.user_id
 
-    let sql = `SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id ORDER BY date_posted DESC`
+    let sql = `
+    SELECT DISTINCT
+        posts.post_id AS p_id,
+        posts.subject,
+        posts.content,
+        posts.date_posted,
+        posts.user_id,
+        users.username,
+        COALESCE(contacts.status, "INACTIVE") AS status,
+        contacts.blocked_by
+    FROM
+        posts
+        INNER JOIN users ON posts.user_id = users.user_id
+        LEFT JOIN contacts ON ((posts.user_id = contacts.contact_person_id AND contacts.user_id = '${user_id}') OR (posts.user_id = contacts.user_id AND contacts.contact_person_id = '${user_id}'))
+    ORDER BY
+        posts.date_posted DESC;
+`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
@@ -16,7 +32,23 @@ module.exports.viewAll = (req,res) => {
 
 // view all posts sort by likes
 module.exports.viewAllByLikes = (req,res) => {
-    let sql = `SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id ORDER BY (SELECT COUNT(like_id) FROM likes WHERE posts.post_id = likes.post_id) DESC`
+    const user_id = req.user.user_id
+
+    let sql = `
+    SELECT DISTINCT
+        posts.post_id AS p_id,
+        posts.subject,
+        posts.content,
+        posts.date_posted,
+        posts.user_id,
+        users.username,
+        COALESCE(contacts.status, "INACTIVE") AS status,
+        contacts.blocked_by
+    FROM
+        posts
+        INNER JOIN users ON posts.user_id = users.user_id
+        LEFT JOIN contacts ON ((posts.user_id = contacts.contact_person_id AND contacts.user_id = '${user_id}') OR (posts.user_id = contacts.user_id AND contacts.contact_person_id = '${user_id}'))
+    ORDER BY (SELECT COUNT(like_id) FROM likes WHERE p_id = post_id) DESC`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
