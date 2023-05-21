@@ -22,7 +22,7 @@ router.get("/viewByUser/:user_id", verify, postControllers.viewByUser);
 router.post("/create", verify, postControllers.create);
 
 // edit post
-router.post("/edit/:post_id", verify, postControllers.edit);
+router.put("/edit/:post_id", verify, postControllers.edit);
 
 // delete post
 router.delete("/delete/:post_id", verify, postControllers.delete);

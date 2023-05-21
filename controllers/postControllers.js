@@ -12,6 +12,7 @@ module.exports.viewAll = (req,res) => {
         posts.content,
         posts.date_posted,
         posts.user_id,
+        posts.edited,
         users.username,
         COALESCE(contacts.status, "INACTIVE") AS status,
         contacts.blocked_by
@@ -41,6 +42,7 @@ module.exports.viewAllByLikes = (req,res) => {
         posts.content,
         posts.date_posted,
         posts.user_id,
+        posts.edited,
         users.username,
         COALESCE(contacts.status, "INACTIVE") AS status,
         contacts.blocked_by
@@ -61,7 +63,15 @@ module.exports.viewAllByLikes = (req,res) => {
 module.exports.view = (req,res) => {
     const post_id = req.params.post_id
 
-    let sql = `SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id WHERE post_id='${post_id}'`
+    let sql = `SELECT         
+    posts.post_id AS p_id,
+    posts.subject,
+    posts.content,
+    posts.date_posted,
+    posts.user_id,
+    posts.edited,
+    users.username 
+    FROM posts INNER JOIN users ON posts.user_id=users.user_id WHERE post_id='${post_id}'`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
@@ -109,7 +119,6 @@ module.exports.create = (req,res) => {
 // edit post
 module.exports.edit = (req,res) => {
     const post_id = req.params.post_id
-    const datetime = new Date()
 
     let sql = `SELECT * FROM posts WHERE user_id='${req.user.user_id}' AND post_id='${post_id}'`
 
@@ -119,7 +128,7 @@ module.exports.edit = (req,res) => {
 			let task = {
                 subject: req.body.subject,
                 content: req.body.content,
-                date_posted: datetime
+                edited: req.body.edited
 			}
 
 			sql = `UPDATE posts SET ? WHERE post_id='${post_id}'`
