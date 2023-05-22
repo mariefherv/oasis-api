@@ -51,3 +51,15 @@ module.exports.verifyAdmin = (req,res,next) => {
     }
 }
 
+// Verify if authenticated user is a therapist
+module.exports.verifyTherapist = (req,res,next) => {
+    if(req.user.role === 'Therapist'){
+        next();
+    } else {
+        return res.send({
+            auth: "Failed",
+            message: "No permission"
+        })
+    }
+}
+
