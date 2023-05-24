@@ -24,4 +24,7 @@ router.post("/getSlotsByWeek/:therapist_id", verify, verifyTherapist, therapistC
 // get slots by month
 router.post("/getSlotsByMonth/:therapist_id", verify, verifyTherapist, therapistControllers.getSlotsByMonth)
 
+// get slot by a selected date
+router.post("/getSlotsByDate/:therapist_id", verify, therapistControllers.getSlotsByDate)
+
 module.exports = router;

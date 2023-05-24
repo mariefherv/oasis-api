@@ -6,7 +6,9 @@ const bookingControllers = require("../controllers/bookingControllers");
 
 const { verify, verifyAdmin } = auth;
 
-// view a contact
-// router.get("/view/:contact_person_id", verify, contactControllers.viewContact);
+// book a slot
+router.post("/bookSlot/:slot_id", verify, bookingControllers.bookSlot);
+
+// 
 
 module.exports = router;

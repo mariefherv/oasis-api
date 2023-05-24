@@ -2,7 +2,7 @@ const db = require('../index');
 const bcrypt = require('bcrypt');
 const auth = require("../auth");
 const { v4: uuidv4 } = require('uuid');
-const { format, startOfWeek, parseISO, endOfWeek, startOfMonth, endOfMonth } = require('date-fns');
+const { format, startOfWeek, parseISO, endOfWeek, startOfMonth, endOfMonth, parse } = require('date-fns');
 
 // get all therapists
 module.exports.getDetails = (req, res) => {
@@ -42,11 +42,35 @@ module.exports.addSlots = (req, res) => {
     })
 }
 
+// retrieve all slots
+module.exports.getSlotsByDay = (req, res) => {
+    const date = format(new Date(req.body.date), 'yyyy-MM-dd')
+
+    let sql = `SELECT
+        slot_id,
+        therapist_id,
+        DATE_FORMAT(date, '%Y-%m-%d') AS date,         
+        time,
+        availability
+    FROM slots WHERE therapist_id = ${req.params.therapist_id} ORDER BY date ASC, time ASC`
+
+    db.query(sql, (err, result) => {
+        if(err) throw err;
+        res.send(result)
+    })
+}
+
 // retrieve slots by day
 module.exports.getSlotsByDay = (req, res) => {
     const date = format(new Date(req.body.date), 'yyyy-MM-dd')
 
-    let sql = `SELECT * FROM slots WHERE date = '${date}' AND therapist_id = ${req.params.therapist_id} ORDER BY date ASC, time ASC`
+    let sql = `SELECT
+        slot_id,
+        therapist_id,
+        DATE_FORMAT(date, '%Y-%m-%d') AS date,         
+        time,
+        availability
+    FROM slots WHERE date = '${date}' AND therapist_id = ${req.params.therapist_id} ORDER BY date ASC, time ASC`
 
     db.query(sql, (err, result) => {
         if(err) throw err;
@@ -60,7 +84,13 @@ module.exports.getSlotsByWeek = (req, res) => {
     const start = format(startOfWeek(parseISO(date)), 'yyyy-MM-dd')
     const end = format(endOfWeek(parseISO(date)), 'yyyy-MM-dd')
 
-    let sql = `SELECT * FROM slots WHERE date BETWEEN '${start}' AND '${end}' AND therapist_id = ${req.params.therapist_id} ORDER BY date ASC, time ASC`
+    let sql = `SELECT 
+        slot_id,
+        therapist_id,
+        DATE_FORMAT(date, '%Y-%m-%d') AS date,         
+        time,
+        availability
+    FROM slots WHERE date BETWEEN '${start}' AND '${end}' AND therapist_id = ${req.params.therapist_id} ORDER BY date ASC, time ASC`
 
     db.query(sql, (err, result) => {
         if(err) throw err;
@@ -74,7 +104,32 @@ module.exports.getSlotsByMonth = (req, res) => {
     const start = format(startOfMonth(parseISO(date)), 'yyyy-MM-dd')
     const end = format(endOfMonth(parseISO(date)), 'yyyy-MM-dd')
 
-    let sql = `SELECT * FROM slots WHERE date BETWEEN '${start}' AND '${end}' AND therapist_id = ${req.params.therapist_id} ORDER BY date ASC, time ASC`
+    let sql = `SELECT 
+        slot_id,
+        therapist_id,
+        DATE_FORMAT(date, '%Y-%m-%d') AS date,         
+        time,
+        availability
+    FROM slots WHERE date BETWEEN '${start}' AND '${end}' AND therapist_id = ${req.params.therapist_id} ORDER BY date ASC, time ASC`
+
+    db.query(sql, (err, result) => {
+        if(err) throw err;
+        res.send(result)
+    })
+}
+
+// retrieve a slots by a given date
+module.exports.getSlotsByDate = (req, res) => {
+    const date = req.body.date
+    const time = req.body.time
+
+    let sql = `SELECT 
+        slot_id,
+        therapist_id,
+        DATE_FORMAT(date, '%Y-%m-%d') AS date,         
+        time,
+        availability
+    FROM slots WHERE therapist_id = ${req.params.therapist_id} AND date='${date}' AND time='${time}' ORDER BY date ASC, time ASC`
 
     db.query(sql, (err, result) => {
         if(err) throw err;
