@@ -136,3 +136,31 @@ module.exports.getSlotsByDate = (req, res) => {
         res.send(result)
     })
 }
+
+// retrieve a slot time by a given date
+module.exports.getTimeSlotByDate = (req, res) => {
+    const date = req.body.date
+
+    let sql = `SELECT       
+        time,
+        availability
+    FROM slots WHERE therapist_id = ${req.params.therapist_id} AND date='${date}' AND availability=1  ORDER BY date ASC, time ASC`
+
+    db.query(sql, (err, result) => {
+        if(err) throw err;
+        res.send(result)
+    })
+}
+
+//  retrieve days of slots available
+module.exports.getDays = (req, res) => {
+
+    let sql = `SELECT DISTINCT       
+        DATE_FORMAT(date, '%Y-%m-%d') AS date
+    FROM slots WHERE therapist_id = ${req.params.therapist_id} AND availability=1 ORDER BY date ASC, time ASC`
+
+    db.query(sql, (err, result) => {
+        if(err) throw err;
+        res.send(result)
+    })
+}
