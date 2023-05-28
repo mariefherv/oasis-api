@@ -84,7 +84,33 @@ module.exports.view = (req,res) => {
 module.exports.viewByUser = (req,res) => {
     const user_id = req.params.user_id
 
-    let sql = `SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id WHERE posts.user_id='${user_id}' ORDER BY posts.date_posted DESC`
+    let sql = `SELECT 
+        posts.post_id AS p_id,
+        posts.subject,
+        posts.content,
+        posts.date_posted AS date_time,
+        posts.user_id,
+        posts.edited,
+    users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id WHERE posts.user_id='${user_id}' ORDER BY posts.date_posted DESC`
+    
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
+
+// view comments from a specific user
+module.exports.viewCommentsByUser = (req,res) => {
+    const user_id = req.params.user_id
+
+    let sql = `SELECT
+        comments.comment_id AS c_id,
+        comments.content,
+        comments.date_commented AS date_time,
+        comments.user_id, 
+        comments.post_id AS p_id,
+    users.username FROM comments INNER JOIN users ON comments.user_id=users.user_id WHERE comments.user_id='${user_id}' ORDER BY comments.date_commented DESC`
     
     db.query(sql, (err,result) => {
 		if(err) throw err;
@@ -417,3 +443,70 @@ module.exports.countCommentLikes = (req, res) => {
     )
 }
 
+// view all posts and comments
+module.exports.viewAllCommentsPostsByRecent = (req, res) => {
+    const user_id = req.params.user_id
+
+    let sql = `(SELECT post_id AS p_id,
+        NULL AS c_id,
+        subject,
+        content,
+        date_posted AS date_time,
+        user_id AS user_id,
+        edited,
+        'post' AS type
+    FROM posts WHERE user_id = '${user_id}'
+    UNION
+    SELECT post_id AS p_id,
+        comment_id AS c_id,
+        NULL AS subject,
+        content,
+        date_commented AS date_time,
+        user_id AS user_id,
+        NULL AS edited,
+        'comment' AS type
+    FROM comments WHERE user_id = '${user_id}')
+    ORDER BY date_time DESC`
+
+    db.query(sql, (err,result) => {
+        if(err) throw err;
+        res.send(result)
+    }
+    )
+}
+
+// view all posts and comments by likes
+module.exports.viewAllCommentsPostsByLikes = (req, res) => {
+    const user_id = req.params.user_id
+
+    let sql = `(SELECT post_id AS p_id,
+        NULL AS c_id,
+        subject,
+        content,
+        date_posted AS date_time,
+        user_id AS user_id,
+        edited,
+        'post' AS type
+    FROM posts WHERE user_id = '${user_id}'
+    UNION
+    SELECT post_id AS p_id,
+        comment_id AS c_id,
+        NULL AS subject,
+        content,
+        date_commented AS date_time,
+        user_id AS user_id,
+        NULL AS edited,
+        'comment' AS type
+    FROM comments WHERE user_id = '${user_id}')
+    ORDER BY 
+    CASE WHEN type = 'post' THEN (SELECT COUNT(like_id) FROM likes WHERE p_id = post_id) 
+    ELSE (SELECT COUNT(like_id) FROM comment_likes WHERE c_id = comment_id)
+    END 
+    DESC`
+
+    db.query(sql, (err,result) => {
+        if(err) throw err;
+        res.send(result)
+    }
+    )
+}

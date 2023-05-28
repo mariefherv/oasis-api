@@ -9,14 +9,23 @@ const { verify, verifyAdmin } = auth;
 //view a post
 router.get("/view/:post_id", verify, postControllers.view);
 
-// view all posts
+// view all posts by recency
 router.get("/viewAllByRecent", verify, postControllers.viewAll);
 
-// view all posts
+// view all posts by likes
 router.get("/viewAllByLikes", verify, postControllers.viewAllByLikes);
+
+// view all posts and comments by recency
+router.get("/viewAllCommentsPostsByRecent/:user_id", verify, postControllers.viewAllCommentsPostsByRecent);
+
+//view post and comments by User by likes
+router.get("/viewAllCommentsPostsByLikes/:user_id", verify, postControllers.viewAllCommentsPostsByLikes);
 
 //view post by User
 router.get("/viewByUser/:user_id", verify, postControllers.viewByUser);
+
+//view comments by User
+router.get("/viewCommentsByUser/:user_id", verify, postControllers.viewCommentsByUser);
 
 //create post
 router.post("/create", verify, postControllers.create);
