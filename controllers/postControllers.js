@@ -447,26 +447,42 @@ module.exports.countCommentLikes = (req, res) => {
 module.exports.viewAllCommentsPostsByRecent = (req, res) => {
     const user_id = req.params.user_id
 
-    let sql = `(SELECT post_id AS p_id,
-        NULL AS c_id,
-        subject,
-        content,
-        date_posted AS date_time,
-        user_id AS user_id,
-        edited,
-        'post' AS type
-    FROM posts WHERE user_id = '${user_id}'
-    UNION
-    SELECT post_id AS p_id,
-        comment_id AS c_id,
-        NULL AS subject,
-        content,
-        date_commented AS date_time,
-        user_id AS user_id,
-        NULL AS edited,
-        'comment' AS type
-    FROM comments WHERE user_id = '${user_id}')
-    ORDER BY date_time DESC`
+    let sql = `SELECT 
+                post_id AS p_id,
+                NULL AS c_id,
+                subject,
+                content,
+                date_posted AS date_time,
+                posts.user_id AS user_id,
+                users.username,
+                edited,
+                'post' AS type
+            FROM 
+                posts
+            LEFT JOIN 
+                users ON posts.user_id = users.user_id
+            WHERE 
+                posts.user_id = '${user_id}'
+            UNION
+            SELECT 
+                post_id AS p_id,
+                comment_id AS c_id,
+                NULL AS subject,
+                content,
+                date_commented AS date_time,
+                comments.user_id AS user_id,
+                users.username,
+                NULL AS edited,
+                'comment' AS type
+            FROM 
+                comments
+            LEFT JOIN 
+                users ON comments.user_id = users.user_id
+            WHERE 
+                comments.user_id = '${user_id}'
+            ORDER BY 
+                date_time DESC;
+            `
 
     db.query(sql, (err,result) => {
         if(err) throw err;
@@ -479,30 +495,55 @@ module.exports.viewAllCommentsPostsByRecent = (req, res) => {
 module.exports.viewAllCommentsPostsByLikes = (req, res) => {
     const user_id = req.params.user_id
 
-    let sql = `(SELECT post_id AS p_id,
-        NULL AS c_id,
-        subject,
-        content,
-        date_posted AS date_time,
-        user_id AS user_id,
-        edited,
-        'post' AS type
-    FROM posts WHERE user_id = '${user_id}'
-    UNION
-    SELECT post_id AS p_id,
-        comment_id AS c_id,
-        NULL AS subject,
-        content,
-        date_commented AS date_time,
-        user_id AS user_id,
-        NULL AS edited,
-        'comment' AS type
-    FROM comments WHERE user_id = '${user_id}')
-    ORDER BY 
-    CASE WHEN type = 'post' THEN (SELECT COUNT(like_id) FROM likes WHERE p_id = post_id) 
-    ELSE (SELECT COUNT(like_id) FROM comment_likes WHERE c_id = comment_id)
-    END 
-    DESC`
+    let sql = `SELECT 
+                    post_id AS p_id,
+                    NULL AS c_id,
+                    subject,
+                    content,
+                    date_posted AS date_time,
+                    posts.user_id AS user_id,
+                    users.username,
+                    edited,
+                    'post' AS type
+                FROM 
+                    posts
+                LEFT JOIN 
+                    users ON posts.user_id = users.user_id
+                WHERE 
+                    posts.user_id = '${user_id}'
+                UNION
+                SELECT 
+                    post_id AS p_id,
+                    comment_id AS c_id,
+                    NULL AS subject,
+                    content,
+                    date_commented AS date_time,
+                    comments.user_id AS user_id,
+                    users.username,
+                    NULL AS edited,
+                    'comment' AS type
+                FROM 
+                    comments
+                LEFT JOIN 
+                    users ON comments.user_id = users.user_id
+                WHERE 
+                    comments.user_id = '${user_id}'
+                ORDER BY 
+                    CASE 
+                        WHEN type = 'post' 
+                        THEN (
+                            SELECT COUNT(like_id) 
+                            FROM likes 
+                            WHERE p_id = post_id
+                        ) 
+                        ELSE (
+                            SELECT COUNT(like_id) 
+                            FROM comment_likes 
+                            WHERE c_id = comment_id
+                        )
+                    END 
+                    DESC;
+                `
 
     db.query(sql, (err,result) => {
         if(err) throw err;
