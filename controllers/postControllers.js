@@ -84,7 +84,7 @@ module.exports.view = (req,res) => {
 module.exports.viewByUser = (req,res) => {
     const user_id = req.params.user_id
 
-    let sql = `SELECT * FROM posts WHERE user_id='${user_id}' ORDER BY date_posted ASC`
+    let sql = `SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id WHERE posts.user_id='${user_id}' ORDER BY posts.date_posted DESC`
     
     db.query(sql, (err,result) => {
 		if(err) throw err;

@@ -61,7 +61,8 @@ module.exports.getBookings = (req, res) => {
         bookings.user_id,
         users.username,
         bookings.confirmation,
-        bookings.denied
+        bookings.denied,
+        bookings.consultation_type
     FROM slots LEFT JOIN bookings ON slots.slot_id = bookings.slot_id LEFT JOIN users ON bookings.user_id = users.user_id WHERE slots.therapist_id = ${therapist_id}
     UNION
     SELECT
@@ -74,7 +75,8 @@ module.exports.getBookings = (req, res) => {
         bookings.user_id,
         users.username,
         bookings.confirmation,
-        bookings.denied
+        bookings.denied,
+        bookings.consultation_type
     FROM bookings LEFT JOIN users ON bookings.user_id = users.user_id WHERE bookings.slot_id IS NULL)
     ORDER BY date ASC, time ASC`
 
@@ -95,7 +97,8 @@ module.exports.retrieveConfirmedBookings = (req, res) => {
         TIME_FORMAT(bookings.consultation_date, '%H:%i:%s') AS time,
         therapists.prefix, therapists.first_name, therapists.last_name, therapists.suffix,
         bookings.confirmation,
-        bookings.denied
+        bookings.denied,
+        bookings.consultation_type
     FROM bookings LEFT JOIN therapists ON bookings.therapist_id = therapists.therapist_id
     WHERE bookings.user_id = '${user_id}' AND confirmation = 1 AND consultation_date > NOW() 
     ORDER BY consultation_date ASC`
@@ -117,7 +120,8 @@ module.exports.retrievePastBookings = (req, res) => {
         TIME_FORMAT(bookings.consultation_date, '%H:%i:%s') AS time,
         therapists.prefix, therapists.first_name, therapists.last_name, therapists.suffix,
         bookings.confirmation,
-        bookings.denied
+        bookings.denied,
+        bookings.consultation_type
     FROM bookings LEFT JOIN therapists ON bookings.therapist_id = therapists.therapist_id
     WHERE bookings.user_id = '${user_id}' AND confirmation = 1 AND consultation_date < NOW() ORDER BY consultation_date DESC`
 
@@ -143,7 +147,8 @@ module.exports.getSlotsByDay = (req, res) => {
         bookings.user_id,
         users.username,
         bookings.confirmation,
-        bookings.denied
+        bookings.denied,
+        bookings.consultation_type
     FROM slots LEFT JOIN bookings ON slots.slot_id = bookings.slot_id LEFT JOIN users ON bookings.user_id = users.user_id WHERE date = '${date}' AND slots.therapist_id = ${therapist_id}
     UNION
     SELECT
@@ -156,7 +161,8 @@ module.exports.getSlotsByDay = (req, res) => {
         bookings.user_id,
         users.username,
         bookings.confirmation,
-        bookings.denied
+        bookings.denied,
+        bookings.consultation_type
     FROM bookings LEFT JOIN users ON bookings.user_id = users.user_id WHERE bookings.slot_id IS NULL AND DATE_FORMAT(bookings.consultation_date, '%Y-%m-%d') = '${date}' AND bookings.therapist_id = ${therapist_id})
     ORDER BY date ASC, time ASC
     `
@@ -185,7 +191,8 @@ module.exports.getSlotsByWeek = (req, res) => {
         bookings.user_id,
         users.username,
         bookings.confirmation,
-        bookings.denied
+        bookings.denied,
+        bookings.consultation_type
     FROM slots LEFT JOIN bookings ON slots.slot_id = bookings.slot_id LEFT JOIN users ON bookings.user_id = users.user_id WHERE date BETWEEN '${start}' AND '${end}' AND slots.therapist_id = ${therapist_id}
     UNION
     SELECT
@@ -198,7 +205,8 @@ module.exports.getSlotsByWeek = (req, res) => {
         bookings.user_id,
         users.username,
         bookings.confirmation,
-        bookings.denied
+        bookings.denied,
+        bookings.consultation_type
     FROM bookings LEFT JOIN users ON bookings.user_id = users.user_id WHERE bookings.slot_id IS NULL AND DATE_FORMAT(bookings.consultation_date, '%Y-%m-%d') BETWEEN '${start}' AND '${end}' AND bookings.therapist_id = ${therapist_id})
     ORDER BY date ASC, time ASC`
 
@@ -226,7 +234,8 @@ module.exports.getSlotsByMonth = (req, res) => {
         bookings.user_id,
         users.username,
         bookings.confirmation,
-        bookings.denied
+        bookings.denied,
+        bookings.consultation_type
     FROM slots LEFT JOIN bookings ON slots.slot_id = bookings.slot_id LEFT JOIN users ON bookings.user_id = users.user_id WHERE date BETWEEN '${start}' AND '${end}' AND slots.therapist_id = ${therapist_id}
     UNION
     SELECT
@@ -239,7 +248,8 @@ module.exports.getSlotsByMonth = (req, res) => {
         bookings.user_id,
         users.username,
         bookings.confirmation,
-        bookings.denied
+        bookings.denied,
+        bookings.consultation_type
     FROM bookings LEFT JOIN users ON bookings.user_id = users.user_id WHERE bookings.slot_id IS NULL AND DATE_FORMAT(bookings.consultation_date, '%Y-%m-%d') BETWEEN '${start}' AND '${end}' AND bookings.therapist_id = ${therapist_id})
     ORDER BY date ASC, time ASC`
 
