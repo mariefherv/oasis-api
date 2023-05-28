@@ -6,7 +6,7 @@ const { format, startOfWeek, parseISO, endOfWeek, startOfMonth, endOfMonth, pars
 
 // get all therapists
 module.exports.getDetails = (req, res) => {
-    let sql = `SELECT * FROM therapists`
+    let sql = `SELECT therapists.*, users.fb_link, users.twt_link, users.li_link FROM therapists LEFT JOIN users ON therapists.user_id = users.user_id`
 
     db.query(sql, (err,result) => {
         if(err) throw err;

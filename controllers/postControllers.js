@@ -551,3 +551,37 @@ module.exports.viewAllCommentsPostsByLikes = (req, res) => {
     }
     )
 }
+
+// view all posts and comments liked by the user
+module.exports.viewAllLikedCommentsPosts = (req, res) => {
+    const user_id = req.params.user_id
+
+    let sql = `SELECT
+                    posts.post_id AS p_id,
+                    NULL AS c_id,
+                    posts.subject,
+                    posts.content,
+                    posts.date_posted AS date_time,
+                    posts.user_id AS user_id,
+                    posts.edited,
+                    'post' AS type
+                FROM posts INNER JOIN likes ON posts.post_id = likes.post_id WHERE likes.user_id = '${user_id}'
+                UNION
+                SELECT
+                    comments.post_id AS p_id,
+                    comments.comment_id AS c_id,
+                    NULL AS subject,
+                    comments.content,
+                    comments.date_commented AS date_time,
+                    comments.user_id AS user_id,
+                    NULL AS edited,
+                    'comment' AS type
+                FROM comments INNER JOIN comment_likes ON comments.comment_id = comment_likes.comment_id WHERE comment_likes.user_id = '${user_id}'
+                `
+
+    db.query(sql, (err,result) => {
+        if(err) throw err;
+        res.send(result)
+    }
+    )
+}

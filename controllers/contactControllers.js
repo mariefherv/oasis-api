@@ -5,12 +5,12 @@ const { v4: uuidv4 } = require('uuid')
 module.exports.viewAll = (req,res) => {
     const user_id = req.user.user_id
 
-    let sql = `SELECT users.username, contacts.contact_id, contacts.status FROM contacts INNER JOIN users ON users.user_id = contacts.contact_person_id WHERE contacts.user_id = '${user_id}'`
+    let sql = `SELECT users.username, contacts.contact_person_id, contacts.contact_id, contacts.status FROM contacts INNER JOIN users ON users.user_id = contacts.contact_person_id WHERE contacts.user_id = '${user_id}'`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
         if(result.length === 0){
-            sql = `SELECT users.username, contacts.contact_id, contacts.status FROM contacts INNER JOIN users ON users.user_id = contacts.user_id WHERE contacts.contact_person_id = '${user_id}'`
+            sql = `SELECT users.username, contacts.contact_id, contacts.user_id AS contact_person_id, contacts.status FROM contacts INNER JOIN users ON users.user_id = contacts.user_id WHERE contacts.contact_person_id = '${user_id}'`
 
             db.query(sql, (err,result) => {
 				if(err) throw err;

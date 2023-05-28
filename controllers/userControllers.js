@@ -101,7 +101,16 @@ module.exports.checkUsername = (req,res) => {
 
 // get user details
 module.exports.getDetails = (req, res) => {
-    let sql = `SELECT user_id, username, email, role FROM users WHERE user_id='${req.user.user_id}'`
+    let sql = `SELECT user_id, username, email, role, registration_date, bio, fb_link, twt_link, li_link FROM users WHERE user_id='${req.user.user_id}'`
+    db.query(sql, (err,result) => {
+        if(err) throw err;
+        res.send(result)
+    })
+}
+
+// get profile details
+module.exports.getUserDetails = (req, res) => {
+    let sql = `SELECT username, email, role, registration_date, bio, fb_link, twt_link, li_link FROM users WHERE user_id='${req.params.user_id}'`
     db.query(sql, (err,result) => {
         if(err) throw err;
         res.send(result)
@@ -115,6 +124,26 @@ module.exports.getUsers = (req, res) => {
         if(err) throw err;
         res.send(result)
     })
+}
+
+// edit user details
+module.exports.editUser = (req,res) => {
+    const user_id = req.user.user_id
+
+    let user = {
+        username: req.body.username,
+        bio: req.body.bio,
+        fb_link: req.body.fb_link,
+        twt_link: req.body.twt_link,
+        li_link: req.body.li_link
+    }
+
+    let sql = `UPDATE users SET ? WHERE user_id='${user_id}'`
+
+    db.query(sql, user, (err, result) => {
+		if(err) throw err;
+		res.send(true)
+	})
 }
 
 // make a user into a therapist

@@ -12,8 +12,14 @@ router.post("/register",userControllers.register);
 // login
 router.post("/login", userControllers.login);
 
-//get user details
+// view user details
+router.get("/getUser/:user_id", verify, userControllers.getUserDetails);
+
+// get user details
 router.get("/getUserDetails", verify, userControllers.getDetails);
+
+// edit user details
+router.patch("/editDetails", verify, userControllers.editUser);
 
 // get list of users
 router.get("/getUsers", verify, verifyAdmin, userControllers.getUsers)

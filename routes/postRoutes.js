@@ -27,6 +27,9 @@ router.get("/viewByUser/:user_id", verify, postControllers.viewByUser);
 //view comments by User
 router.get("/viewCommentsByUser/:user_id", verify, postControllers.viewCommentsByUser);
 
+//view comments by User
+router.get("/viewAllLikedCommentsPosts/:user_id", verify, postControllers.viewAllLikedCommentsPosts);
+
 //create post
 router.post("/create", verify, postControllers.create);
 
