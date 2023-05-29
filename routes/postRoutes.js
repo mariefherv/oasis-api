@@ -63,6 +63,9 @@ router.get("/checkLike/:post_id", verify, postControllers.checkLike)
 // count number of likes of a post
 router.get("/countLikes/:post_id", verify, postControllers.countLikes)
 
+// count number of likes received by user
+router.get("/countUserLikes/:user_id", verify, postControllers.countUserLikes)
+
 // like a comment
 router.post("/comment/like/:comment_id", verify, postControllers.likeComment)
 

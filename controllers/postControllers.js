@@ -443,6 +443,22 @@ module.exports.countCommentLikes = (req, res) => {
     )
 }
 
+// Count number of likes received by user
+module.exports.countUserLikes = (req, res) => {
+    const user_id = req.params.user_id
+
+    let sql = `SELECT COUNT(like_id) AS count FROM (SELECT like_id FROM likes INNER JOIN posts ON likes.post_id = posts.post_id INNER JOIN users ON posts.user_id = users.user_id WHERE users.user_id = '${user_id}'
+    UNION
+    SELECT like_id FROM comment_likes INNER JOIN comments ON comment_likes.comment_id = comments.comment_id INNER JOIN users ON comments.user_id = users.user_id WHERE users.user_id = '${user_id}') AS count`
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
+
+
 // view all posts and comments
 module.exports.viewAllCommentsPostsByRecent = (req, res) => {
     const user_id = req.params.user_id
