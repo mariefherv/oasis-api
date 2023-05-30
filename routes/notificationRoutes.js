@@ -13,6 +13,6 @@ router.get("/viewAll", verify, notificationControllers.viewAll);
 router.get("/viewUnread", verify, notificationControllers.viewUnread);
 
 // mark notification as read
-router.get("/markRead", verify, notificationControllers.markRead);
+router.patch("/markRead/:notification_id", verify, notificationControllers.markRead);
 
 module.exports = router;

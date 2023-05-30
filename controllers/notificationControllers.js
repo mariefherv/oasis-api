@@ -28,7 +28,7 @@ module.exports.viewUnread = (req,res) => {
     FROM notifications
     INNER JOIN users u1 ON u1.user_id = notifications.user_id
     INNER JOIN users u2 ON u2.user_id = notifications.triggered_by
-    WHERE notifications.user_id = '${user_id}'
+    WHERE notifications.user_id = '${user_id}' AND notifications.marked_read = 0
     ORDER BY notifications.created DESC;
     `
 
@@ -43,13 +43,13 @@ module.exports.viewUnread = (req,res) => {
 
 module.exports.markRead = (req,res) => {
     const user_id = req.user.user_id
-    const notif_id = req.params.notif_id
+    const notif_id = req.params.notification_id
 
-    let sql = `UPDATE notifications SET marked_read = 1 WHERE notif_id = '${notif_id}' AND user_id = '${user_id}'`
+    let sql = `UPDATE notifications SET marked_read = 1 WHERE notification_id = '${notif_id}' AND user_id = '${user_id}'`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
-        res.send(result)
+        result.affectedRows !== 0 ? res.send(true) : res.send(false) 
 	}
     )
 }

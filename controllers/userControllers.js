@@ -101,11 +101,29 @@ module.exports.checkUsername = (req,res) => {
 
 // get user details
 module.exports.getDetails = (req, res) => {
-    let sql = `SELECT user_id, username, email, role, registration_date, bio, fb_link, twt_link, li_link FROM users WHERE user_id='${req.user.user_id}'`
+    const user_id = req.user.user_id
+
+    let sql = `SELECT notification_id
+    FROM notifications
+    INNER JOIN users ON users.user_id = notifications.user_id
+    WHERE notifications.user_id = '${user_id}' AND notifications.marked_read = 0
+    ORDER BY notifications.created DESC;
+    `
+
     db.query(sql, (err,result) => {
-        if(err) throw err;
-        res.send(result)
-    })
+		if(err) throw err;
+        if(result.length !== 0) {
+            sql = `SELECT user_id, username, email, role, registration_date, bio, fb_link, twt_link, li_link, true AS has_notifications FROM users WHERE user_id='${req.user.user_id}'`
+        } else {
+            sql = `SELECT user_id, username, email, role, registration_date, bio, fb_link, twt_link, li_link, false AS has_notifications FROM users WHERE user_id='${req.user.user_id}'`
+        }
+
+        db.query(sql, (err,result) => {
+            if(err) throw err;
+            res.send(result)
+        })
+	}
+    )
 }
 
 // get profile details

@@ -94,7 +94,7 @@ module.exports.addContact = (req,res) => {
         } else {
             const contact_id = result[0].contact_id
 
-            sql = `UPDATE contacts SET requested_by = '${user_id}' WHERE contact_id = '${contact_id}'`
+            sql = `UPDATE contacts SET status = "PENDING", requested_by = '${user_id}' WHERE contact_id = '${contact_id}'`
             
             db.query(sql, (err, result) => {
                 if(err) throw err;
