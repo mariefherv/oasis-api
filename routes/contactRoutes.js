@@ -9,11 +9,20 @@ const { verify, verifyAdmin } = auth;
 // view a contact
 router.get("/view/:contact_person_id", verify, contactControllers.viewContact);
 
+// view contact details
+router.get("/viewDetails/:contact_id", verify, contactControllers.viewDetails);
+
 // view all contacts
 router.get("/viewAll", verify, contactControllers.viewAll);
 
 // add contact
 router.put("/addContact/:contact_person_id", verify, contactControllers.addContact);
+
+// confirm contact
+router.patch("/confirmContact/:contact_id", verify, contactControllers.confirmContact);
+
+// decline contact
+router.patch("/declineContact/:contact_id", verify, contactControllers.declineContact);
 
 // remove contact
 router.patch("/removeContact/:contact_person_id", verify, contactControllers.removeContact);

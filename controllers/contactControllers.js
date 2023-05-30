@@ -37,6 +37,19 @@ module.exports.viewContact = (req,res) => {
     )
 }
 
+// view contact details
+module.exports.viewDetails = (req,res) => {
+    const contact_id = req.params.contact_id
+
+    let sql = `SELECT * FROM contacts WHERE contact_id = '${contact_id}'`
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
+
 // add as contact
 module.exports.addContact = (req,res) => {
     const user_id = req.user.user_id
@@ -52,26 +65,118 @@ module.exports.addContact = (req,res) => {
                 contact_id: id,
                 contact_person_id: contact_person_id,
                 user_id: user_id,
+                requested_by: user_id,
             }
         
             sql = 'INSERT INTO contacts SET ?'
         
             db.query(sql, contact, (err,result) => {
                 if(err) throw err;
-                result.affectedRows !== 0 ? res.send({status:"ACTIVE"}) : res.send(false)
+                if (result.affectedRows !== 0){
+                    let notification = {
+                        user_id: contact_person_id,
+                        triggered_by: user_id,
+                        type: 'contact_request',
+                        contact_id: id
+                    }
+                    
+                    sql = 'INSERT INTO notifications SET ?'
+
+                    db.query(sql, notification, (err, result) => {
+                        if(err) throw err;
+                        result.affectedRows !== 0 ? res.send({status:"PENDING"}) : res.send(false)                    
+                    })
+                    } else {
+                        res.send(false)
+                }
             }
             )
         } else {
             const contact_id = result[0].contact_id
 
-            sql = `UPDATE contacts SET status='ACTIVE' WHERE contact_id = '${contact_id}'`
+            sql = `UPDATE contacts SET requested_by = '${user_id}' WHERE contact_id = '${contact_id}'`
             
             db.query(sql, (err, result) => {
                 if(err) throw err;
-                result.changedRows !== 0 ? res.send({status:"ACTIVE"}) : res.send(false)
+                if (result.affectedRows !== 0){
+                    let notification = {
+                        user_id: contact_person_id,
+                        triggered_by: user_id,
+                        type: 'contact_request',
+                        contact_id: contact_id
+                    }
+                    
+                    sql = 'INSERT INTO notifications SET ?'
+
+                    db.query(sql, notification, (err, result) => {
+                        if(err) throw err;
+                        result.affectedRows !== 0 ? res.send({status:"PENDING"}) : res.send(false)                    
+                    })
+                    } else {
+                        res.send(false)
+                }
             })
         }
     })
+}
+
+// confirm contact
+module.exports.confirmContact = (req, res) => {
+    const user_id = req.user.user_id;
+    const contact_id = req.params.contact_id;
+    const notification_id = req.body.notification_id;
+    const contact_person_id = req.body.contact_person_id;
+
+    const values = {
+        user_id: contact_person_id,
+        triggered_by: user_id,
+        type: 'contact_request',
+        contact_id: contact_id,
+    };
+
+    let updateContactsSQL = `UPDATE contacts SET status = 'ACTIVE', requested_by = NULL WHERE contact_id = ?`;
+    let updateNotificationsSQL = `UPDATE notifications SET type = 'contact_confirmed' WHERE notification_id = ?`;
+    let insertNotificationSQL = `INSERT INTO notifications SET ?`;
+
+    db.query(updateContactsSQL, [contact_id], (err, contactsResult) => {
+        if (err) throw err;
+
+        db.query(updateNotificationsSQL, [notification_id], (err, notificationsResult) => {
+        if (err) throw err;
+
+        db.query(insertNotificationSQL, values, (err, insertResult) => {
+            if (err) throw err;
+
+        if (notificationsResult.changedRows !== 0) {
+            res.send({ status: 'ACTIVE' });
+            } else {
+            res.send(false);
+            }
+        });
+        });
+    });
+};
+
+
+// decline contact
+module.exports.declineContact = (req,res) => {
+    const contact_id = req.params.contact_id
+    const notification_id = req.body.notification_id
+
+    let sql = `UPDATE contacts SET status = 'INACTIVE', requested_by = NULL WHERE contact_id = '${contact_id}'`
+
+    db.query(sql, (err, result) => {
+        if(err) throw err;
+        if(result.changedRows !== 0) {
+            sql = `UPDATE notifications SET type = 'contact_declined' WHERE notification_id = '${notification_id}'`
+
+            db.query(sql, (err, result) => {
+                if(err) throw err;
+                result.affectedRows !== 0 ? res.send({status:"INACTIVE"}) : res.send(false)                    
+            })
+        } else {
+            res.send(false)
+        }    })
 }
 
 // remove as contact

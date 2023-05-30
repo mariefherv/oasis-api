@@ -24,4 +24,7 @@ router.post("/getTimeSlotByDate/:therapist_id", verify, therapistControllers.get
 // get slot by a selected date
 router.get("/getDays/:therapist_id", verify, therapistControllers.getDays)
 
+// check slots
+router.get("/checkSlots/:therapist_id", verify, therapistControllers.checkSlots)
+
 module.exports = router;

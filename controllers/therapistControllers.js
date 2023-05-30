@@ -88,3 +88,15 @@ module.exports.getDays = (req, res) => {
         res.send(result)
     })
 }
+
+// check if therapist has available slots
+module.exports.checkSlots = (req, res) => {
+
+    let sql = `SELECT slot_id
+    FROM slots WHERE therapist_id = ${req.params.therapist_id} AND availability=1 AND date > NOW() ORDER BY date ASC, time ASC`
+
+    db.query(sql, (err, result) => {
+        if(err) throw err;
+        res.send(result)
+    })
+}
