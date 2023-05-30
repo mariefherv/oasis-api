@@ -130,12 +130,12 @@ module.exports.confirmContact = (req, res) => {
     const values = {
         user_id: contact_person_id,
         triggered_by: user_id,
-        type: 'contact_request',
+        type: 'contact_confirmed_triggered_by',
         contact_id: contact_id,
     };
 
     let updateContactsSQL = `UPDATE contacts SET status = 'ACTIVE', requested_by = NULL WHERE contact_id = ?`;
-    let updateNotificationsSQL = `UPDATE notifications SET type = 'contact_confirmed' WHERE notification_id = ?`;
+    let updateNotificationsSQL = `UPDATE notifications SET type = 'contact_confirmed_user' WHERE notification_id = ?`;
     let insertNotificationSQL = `INSERT INTO notifications SET ?`;
 
     db.query(updateContactsSQL, [contact_id], (err, contactsResult) => {
