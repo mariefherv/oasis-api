@@ -120,63 +120,103 @@ module.exports.addContact = (req,res) => {
     })
 }
 
-// confirm contact
+// confirm contact request
 module.exports.confirmContact = (req, res) => {
     const user_id = req.user.user_id;
-    const contact_id = req.params.contact_id;
-    const notification_id = req.body.notification_id;
-    const contact_person_id = req.body.contact_person_id;
+    const contact_person_id = req.params.contact_person_id;
 
-    const values = {
-        user_id: contact_person_id,
-        triggered_by: user_id,
-        type: 'contact_confirmed_triggered_by',
-        contact_id: contact_id,
-    };
+    let sql = `SELECT contact_id FROM contacts WHERE (user_id = '${user_id}' AND contact_person_id = '${contact_person_id}') OR (user_id = '${contact_person_id}' AND contact_person_id = '${user_id}')`;
 
-    let updateContactsSQL = `UPDATE contacts SET status = 'ACTIVE', requested_by = NULL WHERE contact_id = ?`;
-    let updateNotificationsSQL = `UPDATE notifications SET type = 'contact_confirmed_user' WHERE notification_id = ?`;
-    let insertNotificationSQL = `INSERT INTO notifications SET ?`;
+    db.query(sql, (err, result) => {
+    if (err) {
+        console.error(err);
+        return res.status(500).send('Internal Server Error');
+    }
 
-    db.query(updateContactsSQL, [contact_id], (err, contactsResult) => {
-        if (err) throw err;
+    if (result.length !== 0) {
+        const contact_id = result[0].contact_id;
+        sql = `UPDATE contacts SET status = 'ACTIVE', requested_by = NULL WHERE contact_id = '${contact_id}'`;
 
-        db.query(updateNotificationsSQL, [notification_id], (err, notificationsResult) => {
-        if (err) throw err;
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Internal Server Error');
+        }
 
-        db.query(insertNotificationSQL, values, (err, insertResult) => {
-            if (err) throw err;
+        if (result.affectedRows !== 0) {
+            sql = `UPDATE notifications SET type = 'contact_confirmed_user' WHERE contact_id = '${contact_id}' AND type = "contact_request"`;
 
-        if (notificationsResult.changedRows !== 0) {
-            res.send({ status: 'ACTIVE' });
-            } else {
-            res.send(false);
+        db.query(sql, (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Internal Server Error');
             }
+
+            if (result.affectedRows !== 0) {
+            const notifications = {
+                user_id: contact_person_id,
+                triggered_by: user_id,
+                type: 'contact_confirmed_triggered_by',
+                contact_id: contact_id,
+                };
+
+            db.query('INSERT INTO notifications SET ?', notifications, (err, result) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send('Internal Server Error');
+                }
+
+                if (result.affectedRows !== 0) {
+                    res.send({ status: 'ACTIVE' });
+                } else {
+                    res.send(false);
+                }
+                });
+            } else {
+                res.send(false);
+            }
+            });
+        } else {
+            res.send(false);
+        }
         });
-        });
+    } else {
+        res.send(false);
+    }
     });
 };
 
 
+
 // decline contact
 module.exports.declineContact = (req,res) => {
-    const contact_id = req.params.contact_id
-    const notification_id = req.body.notification_id
+    const user_id = req.user.user_id
+    const contact_person_id = req.params.contact_person_id
 
-    let sql = `UPDATE contacts SET status = 'INACTIVE', requested_by = NULL WHERE contact_id = '${contact_id}'`
+    let sql = `SELECT contact_id FROM contacts WHERE (user_id = '${user_id}' AND contact_person_id = '${contact_person_id}') OR (user_id = '${contact_person_id}' AND contact_person_id = '${user_id}')`
 
     db.query(sql, (err, result) => {
         if(err) throw err;
-        if(result.changedRows !== 0) {
-            sql = `UPDATE notifications SET type = 'contact_declined' WHERE notification_id = '${notification_id}'`
+        if(result.length !== 0) {
+            const contact_id = result[0].contact_id
+            let sql = `UPDATE contacts SET status = 'INACTIVE', requested_by = NULL WHERE contact_id = '${contact_id}'`
 
             db.query(sql, (err, result) => {
                 if(err) throw err;
-                result.affectedRows !== 0 ? res.send({status:"INACTIVE"}) : res.send(false)                    
-            })
+                if(result.changedRows !== 0) {
+                    sql = `UPDATE notifications SET type = 'contact_declined' WHERE contact_id = '${contact_id}' AND type = "contact_request"`
+
+                    db.query(sql, (err, result) => {
+                        if(err) throw err;
+                        result.affectedRows !== 0 ? res.send({status:"INACTIVE"}) : res.send(false)                  
+                        })
+                } else {
+                    res.send(false)
+                }})
         } else {
             res.send(false)
-        }    })
+        }
+    })
 }
 
 // cancel contact request

@@ -19,13 +19,13 @@ router.get("/viewAll", verify, contactControllers.viewAll);
 router.put("/addContact/:contact_person_id", verify, contactControllers.addContact);
 
 // confirm contact
-router.patch("/confirmContact/:contact_id", verify, contactControllers.confirmContact);
+router.patch("/confirmContact/:contact_person_id", verify, contactControllers.confirmContact);
 
 // cancel contact
 router.delete("/cancelContact/:contact_person_id", verify, contactControllers.cancelRequest);
 
 // decline contact
-router.patch("/declineContact/:contact_id", verify, contactControllers.declineContact);
+router.patch("/declineContact/:contact_person_id", verify, contactControllers.declineContact);
 
 // remove contact
 router.patch("/removeContact/:contact_person_id", verify, contactControllers.removeContact);
