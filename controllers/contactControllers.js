@@ -179,6 +179,38 @@ module.exports.declineContact = (req,res) => {
         }    })
 }
 
+// cancel contact request
+module.exports.cancelRequest = (req,res) => {
+    const user_id = req.user.user_id
+    const contact_person_id = req.params.contact_person_id
+
+    let sql = `SELECT contact_id FROM contacts WHERE (user_id = '${user_id}' AND contact_person_id = '${contact_person_id}') OR (user_id = '${contact_person_id}' AND contact_person_id = '${user_id}')`
+
+    db.query(sql, (err, result) => {
+        if(err) throw err;
+        if(result.length !== 0) {
+            const contact_id = result[0].contact_id
+            let sql = `UPDATE contacts SET status = 'INACTIVE', requested_by = NULL WHERE contact_id = '${contact_id}'`
+
+            db.query(sql, (err, result) => {
+                if(err) throw err;
+                if(result.changedRows !== 0) {
+                    sql = `DELETE FROM notifications WHERE triggered_by = '${user_id}' AND contact_id = '${contact_id}' ORDER BY created DESC LIMIT 1`
+
+                    db.query(sql, (err, result) => {
+                        if(err) throw err;
+                        result.affectedRows !== 0 ? res.send({status:"INACTIVE"}) : res.send(false)                    
+                    })
+                } else {
+                    res.send(false)
+                }})
+        } else {
+            res.send(false)
+        }
+    })
+
+}
+
 // remove as contact
 module.exports.removeContact = (req, res) => {
     const user_id = req.user.user_id

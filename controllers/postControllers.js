@@ -204,29 +204,64 @@ module.exports.viewComments = (req,res) => {
 )
 }
 
-// comment on a post
-module.exports.comment = (req,res) => {
-    const user_id = req.user.user_id
-    const post_id = req.params.post_id
-    const datetime = new Date()
-    const id = uuidv4()
+module.exports.comment = (req, res) => {
+    const user_id = req.user.user_id;
+    const post_id = req.params.post_id;
+    const datetime = new Date();
+    const id = uuidv4();
 
-	let comment = {
+    let comment = {
         comment_id: id,
         user_id: user_id,
-		post_id: post_id,
+        post_id: post_id,
         content: req.body.content,
         date_commented: datetime
-	}
+    };
 
-	let sql = 'INSERT INTO comments SET ?'
+    let sql = 'INSERT INTO comments SET ?';
 
-	db.query(sql, comment, (err,result) => {
-		if(err) throw err;
-		res.send(result)
-	}
-	)
-}
+    db.query(sql, comment, (err, result) => {
+        if (err) throw err;
+        if (result.affectedRows !== 0) {
+            sql = `SELECT notification_id FROM notifications WHERE type = "comment" AND post_id = '${post_id}'`;
+
+            db.query(sql, (err, result) => {
+                if (err) throw err;
+                if (result.length === 0) {
+                    const notif_user_id = req.body.post_user_id;
+                    if (user_id !== notif_user_id) {
+                        let notification = {
+                            user_id: notif_user_id,
+                            triggered_by: user_id,
+                            type: 'comment',
+                            post_id: post_id
+                        };
+
+                        sql = 'INSERT INTO notifications SET ?';
+
+                        db.query(sql, notification, (err, result) => {
+                            if (err) throw err;
+                            result.affectedRows !== 0 ? res.send(true) : res.send(false);
+                        });
+                    } else {
+                        res.send(true);
+                    }
+                } else {
+                    const notif_id = result[0].notification_id
+                    sql = `UPDATE notifications SET marked_read = 0, triggered_by = '${user_id}' WHERE notification_id = '${notif_id}'`;
+
+                    db.query(sql, (err, result) => {
+                        if (err) throw err;
+                        result.affectedRows !== 0 ? res.send(true) : res.send(false);
+                    });
+                }
+            });
+        } else {
+            res.send(false);
+        }
+    });
+};
+
 
 // edit comment
 module.exports.editComment = (req,res) => {
@@ -300,15 +335,46 @@ module.exports.likePost = (req,res) => {
 
             db.query(sql, like, (err,result) => {
                 if(err) throw err;
-                res.send(result)
+                if (result.affectedRows !== 0){
+                    sql = `SELECT notification_id FROM notifications WHERE type = "like_post" AND post_id = '${post_id}'`
+
+                    db.query(sql, (err, result) => {
+                        if(result.length === 0){
+                            const notif_user_id = req.body.post_user_id
+                            if(user_id !== notif_user_id){
+                                let notification = {
+                                    user_id: notif_user_id,
+                                    triggered_by: user_id,
+                                    type: 'like_post',
+                                    post_id: post_id
+                                }
+                                
+                                sql = 'INSERT INTO notifications SET ?'
+            
+                                db.query(sql, notification, (err, result) => {
+                                    if(err) throw err;
+                                    result.affectedRows !== 0 ? res.send(true) : res.send(false)                    
+                                })
+                            } else {
+                                res.send(true)
+                        }} else {
+                            const notification_id = result[0].notification_id
+                            sql = `UPDATE notifications SET marked_read = 0, triggered_by = '${user_id}' WHERE notification_id = '${notification_id}'`
+
+                            db.query(sql, (err, result) => {
+                                if(err) throw err;
+                                result.affectedRows !== 0 ? res.send(true) : res.send(false)    
+                            })
+                    }
+                    })
+                } else {
+                    res.send(false)
+                }
+            })
+            }  else {
+                res.send(false)
+            }})
             }
-            )
-        } else {
-            res.send(false)
-        }
-    }
-    )
-}
 
 // Unlike a post
 module.exports.unlikePost = (req,res) => {
@@ -324,7 +390,14 @@ module.exports.unlikePost = (req,res) => {
 
             db.query(sql, (err, result) => {
                 if(err) throw err;
-                    res.send(true)
+                if (result.affectedRows !== 0){
+                    sql = `DELETE FROM notifications WHERE triggered_by = '${user_id}' AND post_id = '${post_id}'`
+
+                    db.query(sql, (err, result) => {
+                        if(err) throw err;
+                        res.send(true)                 
+                    })
+                }
                 }
             )
 		} else {
@@ -360,6 +433,19 @@ module.exports.countLikes = (req, res) => {
     )
 }
 
+// view a comment
+module.exports.viewSingleComment = (req, res) => {
+    const comment_id = req.params.comment_id
+
+    let sql = `SELECT * FROM comments WHERE comment_id = '${comment_id}'`
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
+
 // Like a comment
 module.exports.likeComment = (req,res) => {
     const id = uuidv4()
@@ -383,8 +469,41 @@ module.exports.likeComment = (req,res) => {
 
             db.query(sql, like, (err,result) => {
                 if(err) throw err;
-                res.send(result)
-            }
+                if (result.affectedRows !== 0){
+                    sql = `SELECT notification_id FROM notifications WHERE type = "like_comment" AND comment_id = '${comment_id}'`
+
+                    db.query(sql, (err, result) => {
+                        if(result.length === 0){
+                            const notif_user_id = req.body.comment_user_id
+                            if(user_id !== notif_user_id){
+                                let notification = {
+                                    user_id: notif_user_id,
+                                    triggered_by: user_id,
+                                    type: 'like_comment',
+                                    comment_id: comment_id
+                                }
+                                
+                                sql = 'INSERT INTO notifications SET ?'
+            
+                                db.query(sql, notification, (err, result) => {
+                                    if(err) throw err;
+                                    result.affectedRows !== 0 ? res.send(true) : res.send(false)                    
+                                })
+                            } else {
+                                res.send(true)
+                        }} else {
+                            const notification_id = result[0].notification_id
+                            sql = `UPDATE notifications SET marked_read = 0, triggered_by = '${user_id}' WHERE notification_id = '${notification_id}'`
+
+                            db.query(sql, (err, result) => {
+                                if(err) throw err;
+                                result.affectedRows !== 0 ? res.send(true) : res.send(false)    
+                            })
+                    }
+                    })
+                } else {
+                    res.send(false)
+                }            }
             )
         } else {
             res.send(false)

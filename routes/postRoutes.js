@@ -48,6 +48,10 @@ router.post("/comment/:post_id", verify, postControllers.comment);
 // edit comment
 router.post("/comment/edit/:comment_id", verify, postControllers.editComment);
 
+// view a comment on a post
+router.get("/comment/view/:comment_id", verify, postControllers.viewSingleComment);
+
+
 // delete comment
 router.delete("/comment/delete/:comment_id", verify, postControllers.deleteComment);
 
