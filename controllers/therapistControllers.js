@@ -6,7 +6,7 @@ const { format, startOfWeek, parseISO, endOfWeek, startOfMonth, endOfMonth, pars
 
 // get all therapists
 module.exports.getDetails = (req, res) => {
-    let sql = `SELECT therapists.*, users.fb_link, users.twt_link, users.li_link FROM therapists LEFT JOIN users ON therapists.user_id = users.user_id`
+    let sql = `SELECT therapists.*, users.user_id AS user_therapist_id, users.fb_link, users.twt_link, users.li_link FROM therapists LEFT JOIN users ON therapists.user_id = users.user_id`
 
     db.query(sql, (err,result) => {
         if(err) throw err;
@@ -38,7 +38,23 @@ module.exports.addSlots = (req, res) => {
 
     db.query(sql, slot, (err, result) => {
         if(err) throw err;
-        res.send(result)
+        result.affectedRows !== 0 ? res.send(true) : res.send(false)
+    })
+}
+
+// notification slot
+module.exports.notifySlots = (req, res) => {
+    
+    let sql = 'INSERT INTO notifications SET ?'
+
+    let notification = {
+        triggered_by: req.user.user_id,
+        type: 'slots'
+    }
+
+    db.query(sql, notification, (err, result) => {
+        if(err) throw err;
+        result.affectedRows !== 0 ? res.send(true) : res.send(false)                    
     })
 }
 

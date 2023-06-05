@@ -20,12 +20,22 @@ let sql = `
         THEN (SELECT COUNT(DISTINCT comments.user_id) FROM comments INNER JOIN posts ON posts.post_id = comments.post_id WHERE comments.post_id = notifications.post_id AND posts.post_id = notifications.post_id)
         ELSE 0
     END AS comment_count,
+    CASE
+        WHEN notifications.type = 'confirm_booking' OR notifications.type = 'decline_booking' OR notifications.type = "slots"
+        THEN (SELECT therapists.prefix FROM therapists INNER JOIN notifications ON therapists.user_id = notifications.triggered_by GROUP BY therapists.prefix)
+        ELSE NULL
+    END AS prefix,
+    CASE
+        WHEN notifications.type = 'confirm_booking' OR notifications.type = 'decline_booking' OR notifications.type = "slots"
+        THEN (SELECT therapists.last_name FROM therapists INNER JOIN notifications ON therapists.user_id = notifications.triggered_by GROUP BY therapists.last_name)
+        ELSE NULL
+    END AS last_name,
     u1.username AS user_username,
     u2.username AS triggered_by_username
     FROM notifications
-    INNER JOIN users u1 ON u1.user_id = notifications.user_id
+    LEFT JOIN users u1 ON u1.user_id = notifications.user_id
     INNER JOIN users u2 ON u2.user_id = notifications.triggered_by
-    WHERE notifications.user_id = '${user_id}'
+    WHERE notifications.user_id = '${user_id}' OR notifications.user_id IS NULL
     ORDER BY notifications.created DESC;
     `;
 
@@ -56,12 +66,24 @@ let sql = `
         THEN (SELECT COUNT(DISTINCT comments.user_id) FROM comments INNER JOIN posts ON posts.post_id = comments.post_id WHERE comments.post_id = notifications.post_id AND posts.post_id = notifications.post_id)
         ELSE 0
     END AS comment_count,
+    CASE
+        WHEN notifications.type = 'confirm_booking' OR notifications.type = 'decline_booking' OR notifications.type = "slots"
+        THEN (SELECT therapists.prefix FROM therapists INNER JOIN notifications ON therapists.user_id = notifications.triggered_by GROUP BY therapists.prefix)
+        ELSE NULL
+    END AS prefix,
+    CASE
+        WHEN notifications.type = 'confirm_booking' OR notifications.type = 'decline_booking' OR notifications.type = "slots"
+        THEN (SELECT therapists.last_name FROM therapists INNER JOIN notifications ON therapists.user_id = notifications.triggered_by GROUP BY therapists.last_name)
+        ELSE NULL
+    END AS last_name,
     u1.username AS user_username,
     u2.username AS triggered_by_username
     FROM notifications
-    INNER JOIN users u1 ON u1.user_id = notifications.user_id
+    LEFT JOIN users u1 ON u1.user_id = notifications.user_id
     INNER JOIN users u2 ON u2.user_id = notifications.triggered_by
-    WHERE notifications.user_id = '${user_id}' AND notifications.marked_read = 0
+    WHERE (notifications.user_id = '${user_id}' 
+    OR notifications.user_id IS NULL) 
+    AND notifications.marked_read = 0
     ORDER BY notifications.created DESC;`;
 
 

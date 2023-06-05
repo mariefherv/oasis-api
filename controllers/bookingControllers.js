@@ -29,7 +29,23 @@ module.exports.bookSlot = (req, res) => {
 
         db.query(sql, (err, result) => {
             if(err) throw err;
-            res.send(result)
+            if (result.affectedRows !== 0){
+                let notification = {
+                    user_id: req.body.user_therapist_id,
+                    triggered_by: req.user.user_id,
+                    type: 'booking',
+                    booking_id: id
+                }
+                
+                sql = 'INSERT INTO notifications SET ?'
+
+                db.query(sql, notification, (err, result) => {
+                    if(err) throw err;
+                    result.affectedRows !== 0 ? res.send(true) : res.send(false)                    
+                })
+                } else {
+                    res.send(false)
+            }
         })
     })
 }
@@ -262,17 +278,91 @@ module.exports.getSlotsByMonth = (req, res) => {
 // confirm booking
 module.exports.confirmBooking = (req, res) => {
     const booking_id = req.params.booking_id
+    const user_id = req.user.user_id
+    const contact_person_id = req.body.contact_person_id
+    const id = uuidv4()
 
     let sql = `UPDATE bookings SET confirmation = 1 WHERE booking_id = '${booking_id}'`
     db.query(sql, (err, result) => {
         if(err) throw err;
-        res.send(result)
+        if (result.affectedRows !== 0){
+            sql = `SELECT contact_id FROM contacts WHERE (user_id = '${user_id}' AND contact_person_id = '${contact_person_id}') OR (user_id = '${contact_person_id}' AND contact_person_id = '${user_id}')`
+
+            db.query(sql, (err, result) => {
+                if(err) throw err;
+                if(result.length === 0) {
+                    let contact = {
+                        contact_id: id,
+                        contact_person_id: contact_person_id,
+                        user_id: user_id,
+                        status: "ACTIVE"
+                    }
+                
+                    sql = 'INSERT INTO contacts SET ?'
+                
+                    db.query(sql, contact, (err,result) => {
+                        if(err) throw err;
+                        if (result.affectedRows !== 0){
+                           
+                            sql = 'INSERT INTO notifications SET ?'
+
+                            let notification = {
+                                user_id: contact_person_id,
+                                triggered_by: user_id,
+                                type: 'confirm_booking',
+                                contact_id: id,
+                                booking_id: booking_id,
+                            }
+        
+                            db.query(sql, notification, (err, result) => {
+                                if(err) throw err;
+                                result.affectedRows !== 0 ? res.send({status:"ACTIVE"}) : res.send(false)                    
+                            })
+                            } else {
+                                res.send(false)
+                        }
+                    }
+                    )
+                } else {
+                    const contact_id = result[0].contact_id
+        
+                    sql = `UPDATE contacts SET status = "ACTIVE", requested_by = '${user_id}' WHERE contact_id = '${contact_id}'`
+                    
+                    db.query(sql, (err, result) => {
+                        if(err) throw err;
+                        if (result.affectedRows !== 0){
+                            
+                            sql = 'INSERT INTO notifications SET ?'
+
+                            let notification = {
+                                user_id: contact_person_id,
+                                triggered_by: user_id,
+                                type: 'confirm_booking',
+                                contact_id: contact_id,
+                                booking_id: booking_id,
+                            }
+        
+                            db.query(sql, notification, (err, result) => {
+                                if(err) throw err;
+                                result.affectedRows !== 0 ? res.send({status:"ACTIVE"}) : res.send(false)                    
+                            })
+                            } else {
+                                res.send(false)
+                        }
+                    })
+                }
+            })
+        } else {
+            res.send(false)
+        }
     })
 }
 
 // deny booking
 module.exports.denyBooking = (req, res) => {
     const booking_id = req.params.booking_id
+    const user_id = req.user.user_id
+    const contact_person_id = req.body.contact_person_id
 
     let sql = `UPDATE slots
     LEFT JOIN bookings ON slots.slot_id = bookings.slot_id
@@ -288,7 +378,24 @@ module.exports.denyBooking = (req, res) => {
         
         db.query(sql, (err, result) => {
             if(err) throw err;
-            res.send(result)
+            if (result.affectedRows !== 0){
+                           
+                sql = 'INSERT INTO notifications SET ?'
+
+                let notification = {
+                    user_id: contact_person_id,
+                    triggered_by: user_id,
+                    type: 'decline_booking',
+                    booking_id: booking_id,
+                }
+
+                db.query(sql, notification, (err, result) => {
+                    if(err) throw err;
+                    result.affectedRows !== 0 ? res.send(true) : res.send(false)                    
+                })
+                } else {
+                    res.send(false)
+            }
         })
     })
 }

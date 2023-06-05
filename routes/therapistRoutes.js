@@ -15,6 +15,9 @@ router.get("/viewAll", verify, therapistControllers.getDetails);
 // add slot
 router.post("/addSlot", verify, verifyTherapist, therapistControllers.addSlots)
 
+// create notification slots
+router.post("/notification", verify, verifyTherapist, therapistControllers.notifySlots)
+
 // get slot by a selected date
 router.post("/getSlotsByDate/:therapist_id", verify, therapistControllers.getSlotsByDate)
 
