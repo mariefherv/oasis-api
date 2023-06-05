@@ -5,20 +5,46 @@ const { v4: uuidv4 } = require('uuid')
 module.exports.viewAll = (req,res) => {
     const user_id = req.user.user_id
 
-    let sql = `SELECT users.username, contacts.* FROM contacts INNER JOIN users ON users.user_id = contacts.contact_person_id WHERE contacts.user_id = '${user_id}'`
+    let sql = `SELECT users.username, users.role, contacts.*, 
+    CASE
+        WHEN users.role = 'Therapist'
+        THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        ELSE NULL
+    END AS prefix,
+    CASE
+        WHEN users.role = 'Therapist'
+        THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        ELSE NULL
+    END AS last_name,
+    CASE
+        WHEN users.role = 'Therapist'
+        THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        ELSE NULL
+    END AS suffix
+    FROM contacts INNER JOIN users ON users.user_id = contacts.contact_person_id WHERE contacts.user_id = '${user_id}'
+    UNION
+    SELECT users.username, users.role, contacts.*,
+    CASE
+        WHEN users.role = 'Therapist'
+        THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        ELSE NULL
+    END AS prefix,
+    CASE
+        WHEN users.role = 'Therapist'
+        THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        ELSE NULL
+    END AS last_name,
+    CASE
+        WHEN users.role = 'Therapist'
+        THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        ELSE NULL
+    END AS suffix
+ FROM contacts INNER JOIN users ON users.user_id = contacts.user_id WHERE contacts.contact_person_id = '${user_id}'
+    `
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
-        if(result.length === 0){
-            sql = `SELECT users.username, contacts.* FROM contacts INNER JOIN users ON users.user_id = contacts.user_id WHERE contacts.contact_person_id = '${user_id}'`
-
-            db.query(sql, (err,result) => {
-				if(err) throw err;
-				res.send(result)
-			})
-        } else {
-            res.send(result)
-        }
+		res.send(result)
 	}
     )
 }
