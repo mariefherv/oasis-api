@@ -54,7 +54,8 @@ module.exports.bookSlot = (req, res) => {
 module.exports.bookingDetails = (req, res) => {
     const booking_id = req.params.booking_id
 
-    let sql = `SELECT * FROM bookings WHERE booking_id = '${booking_id}'`
+    let sql = `SELECT bookings.*, contacts.contact_id FROM bookings INNER JOIN therapists ON bookings.therapist_id = therapists.therapist_id INNER JOIN contacts ON contacts.user_id = therapists.user_id
+    WHERE booking_id = '${booking_id}'`
 
     db.query(sql, (err, result) => {
         if(err) throw err;
@@ -316,7 +317,7 @@ module.exports.confirmBooking = (req, res) => {
         
                             db.query(sql, notification, (err, result) => {
                                 if(err) throw err;
-                                result.affectedRows !== 0 ? res.send({status:"ACTIVE"}) : res.send(false)                    
+                                result.affectedRows !== 0 ? res.send({status:"ACTIVE", contact_id: id}) : res.send(false)                    
                             })
                             } else {
                                 res.send(false)
@@ -344,7 +345,7 @@ module.exports.confirmBooking = (req, res) => {
         
                             db.query(sql, notification, (err, result) => {
                                 if(err) throw err;
-                                result.affectedRows !== 0 ? res.send({status:"ACTIVE"}) : res.send(false)                    
+                                result.affectedRows !== 0 ? res.send({status:"ACTIVE", contact_id: contact_id}) : res.send(false)                    
                             })
                             } else {
                                 res.send(false)

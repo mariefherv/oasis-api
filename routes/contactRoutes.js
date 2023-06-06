@@ -42,6 +42,12 @@ router.post("/sendMessage/:contact_person_id", verify, contactControllers.sendMe
 // view messages
 router.get("/viewMessages/:contact_id", verify, contactControllers.viewAllMessages)
 
+// check unread messages
+router.get("/checkUnread/:contact_id", verify, contactControllers.checkUnread)
+
+// mark messages as read
+router.patch("/markRead/:contact_id", verify, contactControllers.markRead)
+
 // retrieve contact details of others
 router.get("/viewContactDetails/:contact_id", verify, contactControllers.retrieveContactDetails)
 

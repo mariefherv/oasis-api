@@ -22,7 +22,8 @@ module.exports.viewAll = (req,res) => {
         WHEN users.role = 'Therapist'
         THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
         ELSE NULL
-    END AS suffix
+    END AS suffix,
+    (SELECT COUNT(message_id) FROM messages WHERE receiver_id = '${user_id}' AND marked_read = 0 AND messages.contact_id = contacts.contact_id) AS message_count
     FROM contacts INNER JOIN users ON users.user_id = contacts.contact_person_id 
     WHERE contacts.user_id = '${user_id}'
     UNION
@@ -42,7 +43,8 @@ module.exports.viewAll = (req,res) => {
         WHEN users.role = 'Therapist'
         THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
         ELSE NULL
-    END AS suffix
+    END AS suffix,
+    (SELECT COUNT(message_id) FROM messages WHERE receiver_id = '${user_id}' AND marked_read = 0 AND messages.contact_id = contacts.contact_id) AS message_count
     FROM contacts INNER JOIN users ON users.user_id = contacts.user_id 
     WHERE contacts.contact_person_id = '${user_id}'
     `
@@ -447,7 +449,7 @@ module.exports.sendMessage = (req,res) => {
 module.exports.viewAllMessages = (req,res) => {
     const contact_id = req.params.contact_id    
 
-    let sql = `SELECT messages.* FROM messages INNER JOIN contacts ON messages.contact_id =  contacts.contact_id WHERE messages.contact_id = '${contact_id}'`
+    let sql = `SELECT * FROM messages WHERE contact_id = '${contact_id}'`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
@@ -456,3 +458,29 @@ module.exports.viewAllMessages = (req,res) => {
     )
 }
 
+// check if there are unread messages
+module.exports.checkUnread = (req,res) => {
+    const contact_id = req.params.contact_id    
+
+    let sql = `SELECT COUNT(message_id) AS message_count FROM messages WHERE contact_id = '${contact_id}' AND receiver_id = '${req.user.user_id}' AND marked_read = 0`
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
+
+
+// mark messages as read
+module.exports.markRead = (req,res) => {
+    const contact_id = req.params.contact_id    
+
+    let sql = `UPDATE messages SET marked_read = 1 WHERE contact_id = '${contact_id}' AND receiver_id = '${req.user.user_id}'`
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}

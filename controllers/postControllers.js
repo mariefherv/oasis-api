@@ -15,7 +15,23 @@ module.exports.viewAll = (req,res) => {
         posts.edited,
         users.username,
         COALESCE(contacts.status, "INACTIVE") AS status,
-        contacts.blocked_by
+        contacts.blocked_by,
+        users.role,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS prefix,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS last_name,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS suffix
     FROM
         posts
         INNER JOIN users ON posts.user_id = users.user_id
@@ -45,7 +61,23 @@ module.exports.viewAllByLikes = (req,res) => {
         posts.edited,
         users.username,
         COALESCE(contacts.status, "INACTIVE") AS status,
-        contacts.blocked_by
+        contacts.blocked_by,
+        users.role,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS prefix,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS last_name,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS suffix
     FROM
         posts
         INNER JOIN users ON posts.user_id = users.user_id
@@ -70,7 +102,23 @@ module.exports.view = (req,res) => {
     posts.date_posted,
     posts.user_id,
     posts.edited,
-    users.username 
+    users.username,
+    users.role,
+    CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS prefix,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS last_name,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS suffix
     FROM posts INNER JOIN users ON posts.user_id=users.user_id WHERE post_id='${post_id}'`
 
     db.query(sql, (err,result) => {
@@ -91,7 +139,24 @@ module.exports.viewByUser = (req,res) => {
         posts.date_posted AS date_time,
         posts.user_id,
         posts.edited,
-    users.username FROM posts INNER JOIN users ON posts.user_id=users.user_id WHERE posts.user_id='${user_id}' ORDER BY posts.date_posted DESC`
+        users.role,
+        users.username,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS prefix,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS last_name,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS suffix
+     FROM posts INNER JOIN users ON posts.user_id=users.user_id WHERE posts.user_id='${user_id}' ORDER BY posts.date_posted DESC`
     
     db.query(sql, (err,result) => {
 		if(err) throw err;
@@ -110,7 +175,24 @@ module.exports.viewCommentsByUser = (req,res) => {
         comments.date_commented AS date_time,
         comments.user_id, 
         comments.post_id AS p_id,
-    users.username FROM comments INNER JOIN users ON comments.user_id=users.user_id WHERE comments.user_id='${user_id}' ORDER BY comments.date_commented DESC`
+        users.username,
+        users.role,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS prefix,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS last_name,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS suffix
+     FROM comments INNER JOIN users ON comments.user_id=users.user_id WHERE comments.user_id='${user_id}' ORDER BY comments.date_commented DESC`
     
     db.query(sql, (err,result) => {
 		if(err) throw err;
@@ -217,7 +299,24 @@ module.exports.report = (req,res) => {
 module.exports.viewComments = (req,res) => {
     const post_id = req.params.post_id
 
-    let sql = `SELECT comments.*, users.username FROM comments INNER JOIN users ON comments.user_id = users.user_id WHERE post_id='${post_id}' ORDER BY date_commented ASC`
+    let sql = `SELECT comments.*,
+    users.username, users.role,
+    CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS prefix,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS last_name,
+        CASE
+            WHEN users.role = 'Therapist'
+            THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+            ELSE NULL
+        END AS suffix 
+    FROM comments INNER JOIN users ON comments.user_id = users.user_id WHERE post_id='${post_id}' ORDER BY date_commented ASC`
 
     db.query(sql, (err, result) => {
         if(err) throw err;
@@ -625,7 +724,23 @@ module.exports.viewAllCommentsPostsByRecent = (req, res) => {
                 posts.user_id AS user_id,
                 users.username,
                 edited,
-                'post' AS type
+                'post' AS type,
+                users.role,
+                CASE
+                    WHEN users.role = 'Therapist'
+                    THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                    ELSE NULL
+                END AS prefix,
+                CASE
+                    WHEN users.role = 'Therapist'
+                    THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                    ELSE NULL
+                END AS last_name,
+                CASE
+                    WHEN users.role = 'Therapist'
+                    THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                    ELSE NULL
+                END AS suffix
             FROM 
                 posts
             LEFT JOIN 
@@ -642,7 +757,23 @@ module.exports.viewAllCommentsPostsByRecent = (req, res) => {
                 comments.user_id AS user_id,
                 users.username,
                 NULL AS edited,
-                'comment' AS type
+                'comment' AS type,
+                users.role,
+                CASE
+                    WHEN users.role = 'Therapist'
+                    THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                    ELSE NULL
+                END AS prefix,
+                CASE
+                    WHEN users.role = 'Therapist'
+                    THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                    ELSE NULL
+                END AS last_name,
+                CASE
+                    WHEN users.role = 'Therapist'
+                    THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                    ELSE NULL
+                END AS suffix
             FROM 
                 comments
             LEFT JOIN 
@@ -673,7 +804,23 @@ module.exports.viewAllCommentsPostsByLikes = (req, res) => {
                     posts.user_id AS user_id,
                     users.username,
                     edited,
-                    'post' AS type
+                    'post' AS type,
+                    users.role,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS prefix,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS last_name,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS suffix
                 FROM 
                     posts
                 LEFT JOIN 
@@ -690,7 +837,23 @@ module.exports.viewAllCommentsPostsByLikes = (req, res) => {
                     comments.user_id AS user_id,
                     users.username,
                     NULL AS edited,
-                    'comment' AS type
+                    'comment' AS type,
+                    users.role,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS prefix,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS last_name,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS suffix
                 FROM 
                     comments
                 LEFT JOIN 
@@ -733,8 +896,26 @@ module.exports.viewAllLikedCommentsPosts = (req, res) => {
                     posts.date_posted AS date_time,
                     posts.user_id AS user_id,
                     posts.edited,
-                    'post' AS type
-                FROM posts INNER JOIN likes ON posts.post_id = likes.post_id WHERE likes.user_id = '${user_id}'
+                    'post' AS type,
+                    users.role,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS prefix,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS last_name,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS suffix
+                FROM posts INNER JOIN likes ON posts.post_id = likes.post_id 
+                INNER JOIN users ON likes.user_id = users.user_id 
+                WHERE likes.user_id = '${user_id}'
                 UNION
                 SELECT
                     comments.post_id AS p_id,
@@ -744,8 +925,26 @@ module.exports.viewAllLikedCommentsPosts = (req, res) => {
                     comments.date_commented AS date_time,
                     comments.user_id AS user_id,
                     NULL AS edited,
-                    'comment' AS type
-                FROM comments INNER JOIN comment_likes ON comments.comment_id = comment_likes.comment_id WHERE comment_likes.user_id = '${user_id}'
+                    'comment' AS type,
+                    users.role,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS prefix,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS last_name,
+                    CASE
+                        WHEN users.role = 'Therapist'
+                        THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                        ELSE NULL
+                    END AS suffix
+                FROM comments INNER JOIN comment_likes ON comments.comment_id = comment_likes.comment_id
+                INNER JOIN users ON comment_likes.user_id = users.user_id 
+                WHERE comment_likes.user_id = '${user_id}'
                 `
 
     db.query(sql, (err,result) => {
