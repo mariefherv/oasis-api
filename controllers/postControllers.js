@@ -209,6 +209,7 @@ module.exports.comment = (req, res) => {
     const post_id = req.params.post_id;
     const datetime = new Date();
     const id = uuidv4();
+    const notif_user_id = req.body.post_user_id;
 
     let comment = {
         comment_id: id,
@@ -228,7 +229,6 @@ module.exports.comment = (req, res) => {
             db.query(sql, (err, result) => {
                 if (err) throw err;
                 if (result.length === 0) {
-                    const notif_user_id = req.body.post_user_id;
                     if (user_id !== notif_user_id) {
                         let notification = {
                             user_id: notif_user_id,
@@ -247,13 +247,17 @@ module.exports.comment = (req, res) => {
                         res.send(true);
                     }
                 } else {
+                    if (user_id !== notif_user_id) {
                     const notif_id = result[0].notification_id
                     sql = `UPDATE notifications SET marked_read = 0, triggered_by = '${user_id}' WHERE notification_id = '${notif_id}'`;
 
                     db.query(sql, (err, result) => {
                         if (err) throw err;
                         result.affectedRows !== 0 ? res.send(true) : res.send(false);
-                    });
+                    });} 
+                    else {
+                        res.send(true)
+                    }
                 }
             });
         } else {
@@ -318,6 +322,7 @@ module.exports.likePost = (req,res) => {
     const user_id = req.user.user_id
     const post_id = req.params.post_id
     const datetime = new Date()
+    const notif_user_id = req.body.post_user_id
 
     let sql = `SELECT * FROM likes WHERE user_id='${user_id}' AND post_id='${post_id}'`
 
@@ -340,7 +345,6 @@ module.exports.likePost = (req,res) => {
 
                     db.query(sql, (err, result) => {
                         if(result.length === 0){
-                            const notif_user_id = req.body.post_user_id
                             if(user_id !== notif_user_id){
                                 let notification = {
                                     user_id: notif_user_id,
@@ -358,13 +362,16 @@ module.exports.likePost = (req,res) => {
                             } else {
                                 res.send(true)
                         }} else {
-                            const notification_id = result[0].notification_id
-                            sql = `UPDATE notifications SET marked_read = 0, triggered_by = '${user_id}' WHERE notification_id = '${notification_id}'`
+                            if(user_id !== notif_user_id){
+                                const notification_id = result[0].notification_id
+                                sql = `UPDATE notifications SET marked_read = 0, triggered_by = '${user_id}' WHERE notification_id = '${notification_id}'`
 
-                            db.query(sql, (err, result) => {
-                                if(err) throw err;
-                                result.affectedRows !== 0 ? res.send(true) : res.send(false)    
-                            })
+                                db.query(sql, (err, result) => {
+                                    if(err) throw err;
+                                    result.affectedRows !== 0 ? res.send(true) : res.send(false)    
+                            })} else {
+                                res.send(true)
+                            }
                     }
                     })
                 } else {
@@ -452,6 +459,8 @@ module.exports.likeComment = (req,res) => {
     const user_id = req.user.user_id
     const comment_id = req.params.comment_id
     const datetime = new Date()
+    const notif_user_id = req.body.comment_user_id
+
 
     let sql = `SELECT * FROM comment_likes WHERE user_id='${user_id}' AND comment_id='${comment_id}'`
 
@@ -474,7 +483,6 @@ module.exports.likeComment = (req,res) => {
 
                     db.query(sql, (err, result) => {
                         if(result.length === 0){
-                            const notif_user_id = req.body.comment_user_id
                             if(user_id !== notif_user_id){
                                 let notification = {
                                     user_id: notif_user_id,
@@ -492,6 +500,7 @@ module.exports.likeComment = (req,res) => {
                             } else {
                                 res.send(true)
                         }} else {
+                            if(user_id !== notif_user_id){
                             const notification_id = result[0].notification_id
                             sql = `UPDATE notifications SET marked_read = 0, triggered_by = '${user_id}' WHERE notification_id = '${notification_id}'`
 
@@ -499,6 +508,9 @@ module.exports.likeComment = (req,res) => {
                                 if(err) throw err;
                                 result.affectedRows !== 0 ? res.send(true) : res.send(false)    
                             })
+                        } else {
+                            res.send(true)
+                        }
                     }
                     })
                 } else {

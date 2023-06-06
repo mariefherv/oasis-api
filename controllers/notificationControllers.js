@@ -35,7 +35,7 @@ let sql = `
     FROM notifications
     LEFT JOIN users u1 ON u1.user_id = notifications.user_id
     INNER JOIN users u2 ON u2.user_id = notifications.triggered_by
-    WHERE notifications.user_id = '${user_id}' OR notifications.user_id IS NULL
+    WHERE notifications.user_id = '${user_id}' 
     ORDER BY notifications.created DESC;
     `;
 
@@ -81,8 +81,7 @@ let sql = `
     FROM notifications
     LEFT JOIN users u1 ON u1.user_id = notifications.user_id
     INNER JOIN users u2 ON u2.user_id = notifications.triggered_by
-    WHERE (notifications.user_id = '${user_id}' 
-    OR notifications.user_id IS NULL) 
+    WHERE notifications.user_id = '${user_id}'  
     AND notifications.marked_read = 0
     ORDER BY notifications.created DESC;`;
 

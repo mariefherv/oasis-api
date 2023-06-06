@@ -4,7 +4,7 @@ const router = express.Router();
 
 const therapistControllers = require("../controllers/therapistControllers");
 
-const { verify, verifyAdmin, verifyTherapist } = auth;
+const { verify, verifyTherapist } = auth;
 
 //get a therapist detail (user only)
 router.get("/view", verify, verifyTherapist, therapistControllers.getTherapistDetails);

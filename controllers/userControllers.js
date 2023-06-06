@@ -135,15 +135,6 @@ module.exports.getUserDetails = (req, res) => {
     })
 }
 
-// get list of users
-module.exports.getUsers = (req, res) => {
-    let sql = `SELECT user_id, username, email, role FROM users`
-    db.query(sql, (err,result) => {
-        if(err) throw err;
-        res.send(result)
-    })
-}
-
 // edit user details
 module.exports.editUser = (req,res) => {
     const user_id = req.user.user_id
@@ -162,48 +153,4 @@ module.exports.editUser = (req,res) => {
 		if(err) throw err;
 		res.send(true)
 	})
-}
-
-// make a user into a therapist
-module.exports.toTherapist = (req,res) => {
-    let user_id = req.params.user_id;
-
-	let sql = `SELECT * FROM therapists WHERE user_id='${user_id}'`
-
-    // Confirm first if user is not yet a therapist
-	db.query(sql, (err,result) => {
-		if(err) throw err;
-        // if no existing record, proceed
-		if(result.length === 0){
-
-            let therapist = {
-                user_id: user_id,
-                first_name: req.body.first_name,
-                last_name: req.body.last_name,
-                prefix: req.body.prefix,
-                suffix: req.body.suffix,
-                field: req.body.field,
-                description: req.body.description,
-                online: req.body.online,
-                in_person: req.body.in_person,
-                fb_link: req.body.fb_link,
-                twt_link: req.body.twt_link,
-                li_link: req.body.li_link
-            }
-
-            sql = 'INSERT INTO therapists SET ?'
-
-            db.query(sql, therapist, (err) => {
-                if(err) throw err;
-                // after registering, generate access token
-                let new_sql = `UPDATE users SET role="Therapist" WHERE user_id='${therapist.user_id}'`
-                db.query(new_sql, (err,result) => {
-                    if(err) throw err;
-                    res.send(true)
-            })})
-        } else {
-            res.send(false)
-        }
-	}
-	)
 }

@@ -4,7 +4,7 @@ const router = express.Router();
 
 const userControllers = require("../controllers/userControllers");
 
-const { verify, verifyAdmin } = auth;
+const { verify } = auth;
 
 //register
 router.post("/register",userControllers.register);
@@ -21,16 +21,10 @@ router.get("/getUserDetails", verify, userControllers.getDetails);
 // edit user details
 router.patch("/editDetails", verify, userControllers.editUser);
 
-// get list of users
-router.get("/getUsers", verify, verifyAdmin, userControllers.getUsers)
-
 // check if email exists
 router.post("/checkEmail", userControllers.checkEmail)
 
 // check if username exists
 router.post("/checkUsername", userControllers.checkUsername)
-
-// user to therapist
-router.post("/toTherapist/:user_id", verify, verifyAdmin, userControllers.toTherapist)
 
 module.exports = router;

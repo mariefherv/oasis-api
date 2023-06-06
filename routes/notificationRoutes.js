@@ -4,7 +4,7 @@ const router = express.Router();
 
 const notificationControllers = require("../controllers/notificationControllers");
 
-const { verify, verifyAdmin } = auth;
+const { verify } = auth;
 
 // view all notifications
 router.get("/viewAll", verify, notificationControllers.viewAll);

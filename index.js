@@ -61,5 +61,8 @@ app.use('/booking', bookingRoutes);
 const notificationRoutes = require('./routes/notificationRoutes')
 app.use('/notifications', notificationRoutes);
 
+// for admin routes
+const adminRoutes = require('./routes/adminRoutes')
+app.use('/admin', adminRoutes);
 
 app.listen(port,()=>console.log(`API is running on localhost:${process.env.PORT}`))

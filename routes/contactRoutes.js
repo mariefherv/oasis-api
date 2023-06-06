@@ -4,7 +4,7 @@ const router = express.Router();
 
 const contactControllers = require("../controllers/contactControllers");
 
-const { verify, verifyAdmin } = auth;
+const { verify } = auth;
 
 // view a contact
 router.get("/view/:contact_person_id", verify, contactControllers.viewContact);

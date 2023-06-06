@@ -4,7 +4,7 @@ const router = express.Router();
 
 const postControllers = require("../controllers/postControllers");
 
-const { verify, verifyAdmin } = auth;
+const { verify } = auth;
 
 //view a post
 router.get("/view/:post_id", verify, postControllers.view);

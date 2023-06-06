@@ -4,7 +4,7 @@ const router = express.Router();
 
 const bookingControllers = require("../controllers/bookingControllers");
 
-const { verify, verifyAdmin, verifyTherapist } = auth;
+const { verify, verifyTherapist } = auth;
 
 // book a slot
 router.post("/bookSlot/:slot_id", verify, bookingControllers.bookSlot);
