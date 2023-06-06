@@ -191,6 +191,28 @@ module.exports.delete = (req,res) => {
 	})
 }
 
+// report a post
+module.exports.report = (req,res) => {
+    const user_id = req.user.user_id
+    const id = uuidv4()
+
+	let report = {
+        flag_id: id,
+		post_id: req.params.post_id,
+        reported_by: user_id,
+        type: req.body.type,
+        details: req.body.details
+	}
+
+	let sql = 'INSERT INTO flagged_posts SET ?'
+
+	db.query(sql, report, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+	)
+}
+
 // view comments on a post
 module.exports.viewComments = (req,res) => {
     const post_id = req.params.post_id

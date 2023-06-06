@@ -34,4 +34,7 @@ router.get("/getPostsSearch/:keyword", verify, verifyAdmin, adminControllers.vie
 // delete a post
 router.delete("/deletePost/:post_id", verify, verifyAdmin, adminControllers.deletePost)
 
+// view reports of a flagged post
+router.get("/viewReports/:post_id", verify, verifyAdmin, adminControllers.viewReports)
+
 module.exports = router;

@@ -39,6 +39,9 @@ router.put("/edit/:post_id", verify, postControllers.edit);
 // delete post
 router.delete("/delete/:post_id", verify, postControllers.delete);
 
+// report post
+router.post("/report/:post_id", verify, postControllers.report);
+
 // view all comments on a post
 router.get("/comment/:post_id", verify, postControllers.viewComments);
 

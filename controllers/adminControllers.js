@@ -208,3 +208,19 @@ module.exports.deletePost = (req,res) => {
 		res.send(result)
 	})
 }
+
+// View reports of a flagged post
+module.exports.viewReports = (req,res) => {
+    const post_id = req.params.post_id
+
+    let sql = `SELECT flagged_posts.*, posts.subject, users.username 
+    FROM flagged_posts
+    INNER JOIN users ON flagged_posts.reported_by = users.user_id
+    INNER JOIN posts ON flagged_posts.post_id = posts.post_id
+    WHERE flagged_posts.post_id='${post_id}'`
+
+    db.query(sql, (err, result) => {
+		if(err) throw err;
+		res.send(result)
+	})
+}
