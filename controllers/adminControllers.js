@@ -6,9 +6,25 @@ const { v4: uuidv4 } = require('uuid')
 
 // get list of users
 module.exports.getUsers = (req, res) => {
-    keyword = req.params.keyword
+    let sql =
+    `SELECT users.user_id, users.username, users.role,
+    users.fb_link, users.twt_link, users.li_link, 
+    therapists.prefix, therapists.first_name, therapists.last_name,
+    therapists.suffix, therapists.field, therapists.description,
+    therapists.online, therapists.in_person
+    FROM users LEFT JOIN therapists ON therapists.user_id = users.user_id`
 
-    let sql = keyword !== 'empty' ? 
+    db.query(sql, (err,result) => {
+        if(err) throw err;
+        res.send(result)
+    })
+}
+
+// get list of with search
+module.exports.getUsersSearch = (req, res) => {
+    const keyword = req.params.keyword
+
+    let sql =
     `SELECT users.user_id, users.username, users.role,
     users.fb_link, users.twt_link, users.li_link, 
     therapists.prefix, therapists.first_name, therapists.last_name,
@@ -16,14 +32,6 @@ module.exports.getUsers = (req, res) => {
     therapists.online, therapists.in_person
     FROM users LEFT JOIN therapists ON therapists.user_id = users.user_id
     WHERE users.username LIKE '${keyword}%'`
-    :
-    `SELECT users.user_id, users.username, users.role,
-    users.fb_link, users.twt_link, users.li_link, 
-    therapists.prefix, therapists.first_name, therapists.last_name,
-    therapists.suffix, therapists.field, therapists.description,
-    therapists.online, therapists.in_person
-    FROM users LEFT JOIN therapists ON therapists.user_id = users.user_id
-    WHERE users.username LIKE '%%'`
 
     db.query(sql, (err,result) => {
         if(err) throw err;
@@ -103,4 +111,66 @@ module.exports.toTherapist = (req,res) => {
 	)
 }
 
-// view all posts
+// view all posts sort by recency
+module.exports.viewPosts = (req,res) => {
+
+    let sql = `
+    SELECT DISTINCT
+    posts.post_id AS p_id,
+    posts.subject,
+    posts.content,
+    posts.date_posted,
+    posts.user_id,
+    posts.edited,
+    users.username,
+    CASE
+        WHEN (SELECT COUNT(flag_id) FROM flagged_posts WHERE flagged_posts.post_id = posts.post_id) > 0
+        THEN 1
+        ELSE 0
+    END AS reported
+    FROM
+        posts
+        INNER JOIN users ON posts.user_id = users.user_id
+    ORDER BY
+        posts.date_posted ASC;
+    `
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
+
+// view all posts sort by recency with search
+module.exports.viewPostsSearch = (req,res) => {
+    const keyword = req.params.keyword
+    
+    let sql = `
+    SELECT DISTINCT
+    posts.post_id AS p_id,
+    posts.subject,
+    posts.content,
+    posts.date_posted,
+    posts.user_id,
+    posts.edited,
+    users.username,
+    CASE
+        WHEN (SELECT COUNT(flag_id) FROM flagged_posts WHERE flagged_posts.post_id = posts.post_id) > 0
+        THEN 1
+        ELSE 0
+    END AS reported
+    FROM
+        posts
+        INNER JOIN users ON posts.user_id = users.user_id
+    WHERE users.username LIKE '${keyword}%'
+    ORDER BY
+        posts.date_posted ASC
+`
+
+    db.query(sql, (err,result) => {
+		if(err) throw err;
+		res.send(result)
+	}
+    )
+}
