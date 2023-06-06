@@ -6,12 +6,25 @@ const { v4: uuidv4 } = require('uuid')
 
 // get list of users
 module.exports.getUsers = (req, res) => {
-    let sql = `SELECT users.user_id, users.username, users.role,
+    keyword = req.params.keyword
+
+    let sql = keyword !== 'empty' ? 
+    `SELECT users.user_id, users.username, users.role,
     users.fb_link, users.twt_link, users.li_link, 
     therapists.prefix, therapists.first_name, therapists.last_name,
     therapists.suffix, therapists.field, therapists.description,
     therapists.online, therapists.in_person
-    FROM users LEFT JOIN therapists ON therapists.user_id = users.user_id`
+    FROM users LEFT JOIN therapists ON therapists.user_id = users.user_id
+    WHERE users.username LIKE '${keyword}%'`
+    :
+    `SELECT users.user_id, users.username, users.role,
+    users.fb_link, users.twt_link, users.li_link, 
+    therapists.prefix, therapists.first_name, therapists.last_name,
+    therapists.suffix, therapists.field, therapists.description,
+    therapists.online, therapists.in_person
+    FROM users LEFT JOIN therapists ON therapists.user_id = users.user_id
+    WHERE users.username LIKE '%%'`
+
     db.query(sql, (err,result) => {
         if(err) throw err;
         res.send(result)
@@ -21,7 +34,7 @@ module.exports.getUsers = (req, res) => {
 // update role (user or admin)
 module.exports.updateRole = (req, res) => {
     const user_id = req.params.user_id;
-    const role = req.params.role;
+    const role = req.body.role;
 
     let sql = `UPDATE users SET role='${role}' WHERE user_id='${user_id}'`
     db.query(sql, (err,result) => {
@@ -89,3 +102,5 @@ module.exports.toTherapist = (req,res) => {
 	}
 	)
 }
+
+// view all posts

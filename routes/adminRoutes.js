@@ -8,7 +8,7 @@ const adminControllers = require("../controllers/adminControllers");
 const { verify, verifyAdmin } = auth;
 
 // get list of users
-router.get("/getUsers", verify, verifyAdmin, adminControllers.getUsers)
+router.get("/getUsers/:keyword", verify, verifyAdmin, adminControllers.getUsers)
 
 // update roles (user or admin)
 router.post("/updateRole/:user_id", verify, verifyAdmin, adminControllers.updateRole)
