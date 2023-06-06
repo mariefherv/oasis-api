@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require('uuid')
 module.exports.getUsers = (req, res) => {
     let sql =
     `SELECT users.user_id, users.username, users.role,
-    users.fb_link, users.twt_link, users.li_link, 
+    users.fb_link, users.twt_link, users.li_link, users.banned,
     therapists.prefix, therapists.first_name, therapists.last_name,
     therapists.suffix, therapists.field, therapists.description,
     therapists.online, therapists.in_person
@@ -26,7 +26,7 @@ module.exports.getUsersSearch = (req, res) => {
 
     let sql =
     `SELECT users.user_id, users.username, users.role,
-    users.fb_link, users.twt_link, users.li_link, 
+    users.fb_link, users.twt_link, users.li_link, users.banned,
     therapists.prefix, therapists.first_name, therapists.last_name,
     therapists.suffix, therapists.field, therapists.description,
     therapists.online, therapists.in_person
@@ -111,6 +111,28 @@ module.exports.toTherapist = (req,res) => {
 	)
 }
 
+// ban user
+module.exports.banUser = (req, res) => {
+    const user_id = req.params.user_id;
+
+    let sql = `UPDATE users SET banned=1 WHERE user_id='${user_id}'`
+    db.query(sql, (err,result) => {
+        if(err) throw err;
+        res.send(result)
+    })
+}
+
+// unban user
+module.exports.unbanUser = (req, res) => {
+    const user_id = req.params.user_id;
+
+    let sql = `UPDATE users SET banned=0 WHERE user_id='${user_id}'`
+    db.query(sql, (err,result) => {
+        if(err) throw err;
+        res.send(result)
+    })
+}
+
 // view all posts sort by recency
 module.exports.viewPosts = (req,res) => {
 
@@ -173,4 +195,16 @@ module.exports.viewPostsSearch = (req,res) => {
 		res.send(result)
 	}
     )
+}
+
+// Delete a post
+module.exports.deletePost = (req,res) => {
+    const post_id = req.params.post_id
+
+    let sql = `DELETE FROM posts WHERE post_id='${post_id}'`
+
+    db.query(sql, (err, result) => {
+		if(err) throw err;
+		res.send(result)
+	})
 }

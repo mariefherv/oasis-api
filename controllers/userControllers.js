@@ -55,7 +55,13 @@ module.exports.login = (req,res) => {
 
             const isPasswordCorrect = bcrypt.compareSync(req.body.password,foundUser.password)
 
-            isPasswordCorrect ? res.send({accessToken: auth.createAccessToken(foundUser)}) : res.send(false)
+            if(isPasswordCorrect){
+                foundUser.banned ? res.send({error:'banned'})
+                :
+                res.send({accessToken: auth.createAccessToken(foundUser)})
+            } else {
+                res.send({error:'incorrect'})
+            }
         } else {
             res.send(false)
         }
