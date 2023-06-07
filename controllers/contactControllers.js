@@ -6,7 +6,7 @@ module.exports.viewAll = (req,res) => {
     const user_id = req.user.user_id
 
     let sql = `
-    SELECT users.username, users.role, users.user_id,
+    SELECT users.username, users.role, users.user_id, users.gender,
     contacts.status, contacts.requested_by, contacts.blocked_by, contacts.contact_id,
     CASE
         WHEN users.role = 'Therapist'
@@ -27,7 +27,7 @@ module.exports.viewAll = (req,res) => {
     FROM contacts INNER JOIN users ON users.user_id = contacts.contact_person_id 
     WHERE contacts.user_id = '${user_id}'
     UNION
-    SELECT users.username, users.role, users.user_id,
+    SELECT users.username, users.role, users.user_id, users.gender,
     contacts.status, contacts.requested_by, contacts.blocked_by, contacts.contact_id,
     CASE
         WHEN users.role = 'Therapist'
@@ -376,7 +376,7 @@ module.exports.retrieveContactDetails = (req, res) => {
     const user_id = req.user.user_id
     const contact_id = req.params.contact_id
 
-	let sql = `SELECT contacts.user_id AS user_id, users.username, users.role, contacts.status, contacts.blocked_by,
+	let sql = `SELECT contacts.user_id AS user_id, users.username, users.gender, users.role, contacts.status, contacts.blocked_by,
     CASE
         WHEN users.role = 'Therapist'
         THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
@@ -399,7 +399,7 @@ module.exports.retrieveContactDetails = (req, res) => {
         if(result.length !== 0){
             res.send(result)
         } else {
-            sql = `SELECT contacts.contact_person_id AS user_id, users.username, users.role, contacts.status, contacts.blocked_by,
+            sql = `SELECT contacts.contact_person_id AS user_id, users.username, users.role, users.gender, contacts.status, contacts.blocked_by,
             CASE
                 WHEN users.role = 'Therapist'
                 THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
@@ -449,7 +449,7 @@ module.exports.sendMessage = (req,res) => {
 module.exports.viewAllMessages = (req,res) => {
     const contact_id = req.params.contact_id    
 
-    let sql = `SELECT * FROM messages WHERE contact_id = '${contact_id}'`
+    let sql = `SELECT messages.*, users.gender AS sender_gender, users.role AS sender_role FROM messages LEFT JOIN users ON messages.sender_id = users.user_id WHERE contact_id = '${contact_id}'`
 
     db.query(sql, (err,result) => {
 		if(err) throw err;

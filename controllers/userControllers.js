@@ -119,9 +119,9 @@ module.exports.getDetails = (req, res) => {
     db.query(sql, (err,result) => {
 		if(err) throw err;
         if(result.length !== 0) {
-            sql = `SELECT user_id, username, email, role, registration_date, bio, fb_link, twt_link, li_link, true AS has_notifications FROM users WHERE user_id='${req.user.user_id}'`
+            sql = `SELECT user_id, username, email, gender, role, registration_date, bio, fb_link, twt_link, li_link, true AS has_notifications FROM users WHERE user_id='${req.user.user_id}'`
         } else {
-            sql = `SELECT user_id, username, email, role, registration_date, bio, fb_link, twt_link, li_link, false AS has_notifications FROM users WHERE user_id='${req.user.user_id}'`
+            sql = `SELECT user_id, username, email, gender, role, registration_date, bio, fb_link, twt_link, li_link, false AS has_notifications FROM users WHERE user_id='${req.user.user_id}'`
         }
 
         db.query(sql, (err,result) => {
@@ -134,7 +134,7 @@ module.exports.getDetails = (req, res) => {
 
 // get profile details
 module.exports.getUserDetails = (req, res) => {
-    let sql = `SELECT username, email, role, registration_date, bio, fb_link, twt_link, li_link FROM users WHERE user_id='${req.params.user_id}'`
+    let sql = `SELECT username, email, role, gender, registration_date, bio, fb_link, twt_link, li_link FROM users WHERE user_id='${req.params.user_id}'`
     db.query(sql, (err,result) => {
         if(err) throw err;
         res.send(result)

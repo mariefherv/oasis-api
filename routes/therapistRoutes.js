@@ -12,6 +12,15 @@ router.get("/view", verify, verifyTherapist, therapistControllers.getTherapistDe
 //get all therapists
 router.get("/viewAll", verify, therapistControllers.getDetails);
 
+//get all therapists by consultation type
+router.get("/viewAllByConsultation/:type", verify, therapistControllers.getDetailsByConsultation);
+
+//get all therapists by availability
+router.get("/viewAllByAvailability/:date", verify, therapistControllers.getDetailsByAvailability);
+
+//get all therapists by consultation type and availability
+router.get("/viewAllByConsultationAvailability/:type/:date/", verify, therapistControllers.getDetailsByConsultationAvailability);
+
 // add slot
 router.post("/addSlot", verify, verifyTherapist, therapistControllers.addSlots)
 

@@ -14,6 +14,7 @@ module.exports.viewAll = (req,res) => {
         posts.user_id,
         posts.edited,
         users.username,
+        users.gender,
         COALESCE(contacts.status, "INACTIVE") AS status,
         contacts.blocked_by,
         users.role,
@@ -60,6 +61,7 @@ module.exports.viewAllByLikes = (req,res) => {
         posts.user_id,
         posts.edited,
         users.username,
+        users.gender,
         COALESCE(contacts.status, "INACTIVE") AS status,
         contacts.blocked_by,
         users.role,
@@ -103,6 +105,7 @@ module.exports.view = (req,res) => {
     posts.user_id,
     posts.edited,
     users.username,
+    users.gender,
     users.role,
     CASE
             WHEN users.role = 'Therapist'
@@ -140,6 +143,7 @@ module.exports.viewByUser = (req,res) => {
         posts.user_id,
         posts.edited,
         users.role,
+        users.gender,
         users.username,
         CASE
             WHEN users.role = 'Therapist'
@@ -177,6 +181,7 @@ module.exports.viewCommentsByUser = (req,res) => {
         comments.post_id AS p_id,
         users.username,
         users.role,
+        users.gender,
         CASE
             WHEN users.role = 'Therapist'
             THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
@@ -300,7 +305,7 @@ module.exports.viewComments = (req,res) => {
     const post_id = req.params.post_id
 
     let sql = `SELECT comments.*,
-    users.username, users.role,
+    users.username, users.role, users.gender,
     CASE
             WHEN users.role = 'Therapist'
             THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
@@ -725,6 +730,7 @@ module.exports.viewAllCommentsPostsByRecent = (req, res) => {
                 users.username,
                 edited,
                 'post' AS type,
+                users.gender,
                 users.role,
                 CASE
                     WHEN users.role = 'Therapist'
@@ -758,6 +764,7 @@ module.exports.viewAllCommentsPostsByRecent = (req, res) => {
                 users.username,
                 NULL AS edited,
                 'comment' AS type,
+                users.gender,
                 users.role,
                 CASE
                     WHEN users.role = 'Therapist'
@@ -805,6 +812,7 @@ module.exports.viewAllCommentsPostsByLikes = (req, res) => {
                     users.username,
                     edited,
                     'post' AS type,
+                    users.gender,
                     users.role,
                     CASE
                         WHEN users.role = 'Therapist'
@@ -838,6 +846,7 @@ module.exports.viewAllCommentsPostsByLikes = (req, res) => {
                     users.username,
                     NULL AS edited,
                     'comment' AS type,
+                    users.gender,
                     users.role,
                     CASE
                         WHEN users.role = 'Therapist'
@@ -897,6 +906,7 @@ module.exports.viewAllLikedCommentsPosts = (req, res) => {
                     posts.user_id AS user_id,
                     posts.edited,
                     'post' AS type,
+                    users.gender,
                     users.role,
                     CASE
                         WHEN users.role = 'Therapist'
@@ -926,6 +936,7 @@ module.exports.viewAllLikedCommentsPosts = (req, res) => {
                     comments.user_id AS user_id,
                     NULL AS edited,
                     'comment' AS type,
+                    users.gender,
                     users.role,
                     CASE
                         WHEN users.role = 'Therapist'

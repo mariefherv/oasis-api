@@ -77,6 +77,8 @@ module.exports.getBookings = (req, res) => {
         bookings.booking_id,
         bookings.user_id,
         users.username,
+        users.role,
+        users.gender,
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
@@ -91,6 +93,8 @@ module.exports.getBookings = (req, res) => {
         bookings.booking_id,
         bookings.user_id,
         users.username,
+        users.role,
+        users.gender,
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
@@ -113,10 +117,11 @@ module.exports.retrieveConfirmedBookings = (req, res) => {
         DATE_FORMAT(bookings.consultation_date, '%Y-%m-%d') AS date,
         TIME_FORMAT(bookings.consultation_date, '%H:%i:%s') AS time,
         therapists.prefix, therapists.first_name, therapists.last_name, therapists.suffix,
+        users.gender,
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
-    FROM bookings LEFT JOIN therapists ON bookings.therapist_id = therapists.therapist_id
+    FROM bookings LEFT JOIN therapists ON bookings.therapist_id = therapists.therapist_id INNER JOIN users ON therapists.user_id = users.user_id
     WHERE bookings.user_id = '${user_id}' AND confirmation = 1 AND consultation_date > NOW() 
     ORDER BY consultation_date ASC`
 
@@ -136,10 +141,11 @@ module.exports.retrievePastBookings = (req, res) => {
         DATE_FORMAT(bookings.consultation_date, '%Y-%m-%d') AS date,
         TIME_FORMAT(bookings.consultation_date, '%H:%i:%s') AS time,
         therapists.prefix, therapists.first_name, therapists.last_name, therapists.suffix,
+        users.gender,
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
-    FROM bookings LEFT JOIN therapists ON bookings.therapist_id = therapists.therapist_id
+    FROM bookings LEFT JOIN therapists ON bookings.therapist_id = therapists.therapist_id INNER JOIN users ON therapists.user_id = users.user_id
     WHERE bookings.user_id = '${user_id}' AND confirmation = 1 AND consultation_date < NOW() ORDER BY consultation_date DESC`
 
     db.query(sql, (err, result) => {
@@ -163,6 +169,8 @@ module.exports.getSlotsByDay = (req, res) => {
         bookings.booking_id,
         bookings.user_id,
         users.username,
+        users.role,
+        users.gender,
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
@@ -177,6 +185,8 @@ module.exports.getSlotsByDay = (req, res) => {
         bookings.booking_id,
         bookings.user_id,
         users.username,
+        users.role,
+        users.gender,
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
@@ -207,6 +217,8 @@ module.exports.getSlotsByWeek = (req, res) => {
         bookings.booking_id,
         bookings.user_id,
         users.username,
+        users.role,
+        users.gender,
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
@@ -221,6 +233,8 @@ module.exports.getSlotsByWeek = (req, res) => {
         bookings.booking_id,
         bookings.user_id,
         users.username,
+        users.role,
+        users.gender,
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
@@ -250,6 +264,8 @@ module.exports.getSlotsByMonth = (req, res) => {
         bookings.booking_id,
         bookings.user_id,
         users.username,
+        users.role,
+        users.gender,
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
@@ -264,6 +280,8 @@ module.exports.getSlotsByMonth = (req, res) => {
         bookings.booking_id,
         bookings.user_id,
         users.username,
+        users.role,
+        users.gender,
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type

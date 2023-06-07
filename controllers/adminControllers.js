@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid')
 // get list of users
 module.exports.getUsers = (req, res) => {
     let sql =
-    `SELECT users.user_id, users.username, users.role,
+    `SELECT users.user_id, users.username, users.role, users.gender,
     users.fb_link, users.twt_link, users.li_link, users.banned,
     therapists.prefix, therapists.first_name, therapists.last_name,
     therapists.suffix, therapists.field, therapists.description,
@@ -25,7 +25,7 @@ module.exports.getUsersSearch = (req, res) => {
     const keyword = req.params.keyword
 
     let sql =
-    `SELECT users.user_id, users.username, users.role,
+    `SELECT users.user_id, users.username, users.role, users.gender,
     users.fb_link, users.twt_link, users.li_link, users.banned,
     therapists.prefix, therapists.first_name, therapists.last_name,
     therapists.suffix, therapists.field, therapists.description,
@@ -145,6 +145,7 @@ module.exports.viewPosts = (req,res) => {
     posts.user_id,
     posts.edited,
     users.username,
+    users.gender,
     CASE
         WHEN (SELECT COUNT(flag_id) FROM flagged_posts WHERE flagged_posts.post_id = posts.post_id) > 0
         THEN 1
@@ -177,6 +178,7 @@ module.exports.viewPostsSearch = (req,res) => {
     posts.user_id,
     posts.edited,
     users.username,
+    users.gender,
     CASE
         WHEN (SELECT COUNT(flag_id) FROM flagged_posts WHERE flagged_posts.post_id = posts.post_id) > 0
         THEN 1

@@ -31,7 +31,11 @@ let sql = `
         ELSE NULL
     END AS last_name,
     u1.username AS user_username,
-    u2.username AS triggered_by_username
+    u1.gender AS user_gender,
+    u1.role AS user_role,
+    u2.username AS triggered_by_username,
+    u2.gender AS triggered_by_gender,
+    u2.role AS triggered_by_role
     FROM notifications
     LEFT JOIN users u1 ON u1.user_id = notifications.user_id
     INNER JOIN users u2 ON u2.user_id = notifications.triggered_by
@@ -77,7 +81,11 @@ let sql = `
         ELSE NULL
     END AS last_name,
     u1.username AS user_username,
-    u2.username AS triggered_by_username
+    u1.gender AS user_gender,
+    u1.role AS user_role,
+    u2.username AS triggered_by_username,
+    u2.gender AS triggered_by_gender,
+    u2.role AS triggered_by_role
     FROM notifications
     LEFT JOIN users u1 ON u1.user_id = notifications.user_id
     INNER JOIN users u2 ON u2.user_id = notifications.triggered_by
