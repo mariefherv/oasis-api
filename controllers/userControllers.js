@@ -21,6 +21,7 @@ module.exports.register = (req,res) => {
                 user_id: id,
                 username:req.body.username,
                 email:req.body.email,
+                gender: req.body.gender,
                 password:hashedPw
             }
 
@@ -134,7 +135,7 @@ module.exports.getDetails = (req, res) => {
 
 // get profile details
 module.exports.getUserDetails = (req, res) => {
-    let sql = `SELECT username, email, role, gender, registration_date, bio, fb_link, twt_link, li_link FROM users WHERE user_id='${req.params.user_id}'`
+    let sql = `SELECT users.username, users.email, users.role, users.gender, users.registration_date, users.bio, users.fb_link, users.twt_link, users.li_link, therapists.* FROM users LEFT JOIN therapists ON therapists.user_id = users.user_id WHERE users.user_id='${req.params.user_id}'`
     db.query(sql, (err,result) => {
         if(err) throw err;
         res.send(result)

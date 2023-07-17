@@ -1,8 +1,4 @@
 const db = require('../index');
-const bcrypt = require('bcrypt');
-const auth = require("../auth");
-const { v4: uuidv4 } = require('uuid')
-
 
 // get list of users
 module.exports.getUsers = (req, res) => {

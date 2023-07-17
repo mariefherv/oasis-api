@@ -10,42 +10,43 @@ module.exports.viewAll = (req,res) => {
     contacts.status, contacts.requested_by, contacts.blocked_by, contacts.contact_id,
     CASE
         WHEN users.role = 'Therapist'
-        THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        THEN therapists.prefix
         ELSE NULL
     END AS prefix,
     CASE
         WHEN users.role = 'Therapist'
-        THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
-        ELSE NULL
+        THEN therapists.last_name
     END AS last_name,
     CASE
         WHEN users.role = 'Therapist'
-        THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        THEN therapists.suffix
         ELSE NULL
     END AS suffix,
     (SELECT COUNT(message_id) FROM messages WHERE receiver_id = '${user_id}' AND marked_read = 0 AND messages.contact_id = contacts.contact_id) AS message_count
-    FROM contacts INNER JOIN users ON users.user_id = contacts.contact_person_id 
+    FROM contacts INNER JOIN users ON users.user_id = contacts.contact_person_id
+    LEFT JOIN therapists ON users.user_id = therapists.user_id 
     WHERE contacts.user_id = '${user_id}'
     UNION
     SELECT users.username, users.role, users.user_id, users.gender,
     contacts.status, contacts.requested_by, contacts.blocked_by, contacts.contact_id,
     CASE
         WHEN users.role = 'Therapist'
-        THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        THEN therapists.prefix
         ELSE NULL
     END AS prefix,
     CASE
         WHEN users.role = 'Therapist'
-        THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        THEN therapists.last_name
         ELSE NULL
     END AS last_name,
     CASE
         WHEN users.role = 'Therapist'
-        THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        THEN therapists.suffix
         ELSE NULL
     END AS suffix,
     (SELECT COUNT(message_id) FROM messages WHERE receiver_id = '${user_id}' AND marked_read = 0 AND messages.contact_id = contacts.contact_id) AS message_count
-    FROM contacts INNER JOIN users ON users.user_id = contacts.user_id 
+    FROM contacts INNER JOIN users ON users.user_id = contacts.user_id
+    LEFT JOIN therapists ON users.user_id = therapists.user_id 
     WHERE contacts.contact_person_id = '${user_id}'
     `
 
@@ -379,20 +380,23 @@ module.exports.retrieveContactDetails = (req, res) => {
 	let sql = `SELECT contacts.user_id AS user_id, users.username, users.gender, users.role, contacts.status, contacts.blocked_by,
     CASE
         WHEN users.role = 'Therapist'
-        THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        THEN therapists.prefix
         ELSE NULL
     END AS prefix,
     CASE
         WHEN users.role = 'Therapist'
-        THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        THEN therapists.last_name
         ELSE NULL
     END AS last_name,
     CASE
         WHEN users.role = 'Therapist'
-        THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+        THEN therapists.suffix
         ELSE NULL
     END AS suffix
-    FROM users INNER JOIN contacts ON users.user_id = contacts.user_id WHERE contacts.contact_person_id = '${user_id}' AND contacts.contact_id = '${contact_id}'`
+    FROM users INNER JOIN contacts ON users.user_id = contacts.user_id 
+    LEFT JOIN therapists ON users.user_id = therapists.user_id
+    WHERE contacts.contact_person_id = '${user_id}' AND contacts.contact_id = '${contact_id}'
+    `
 
     db.query(sql, (err,result) => {
 		if(err) throw err;
@@ -402,20 +406,19 @@ module.exports.retrieveContactDetails = (req, res) => {
             sql = `SELECT contacts.contact_person_id AS user_id, users.username, users.role, users.gender, contacts.status, contacts.blocked_by,
             CASE
                 WHEN users.role = 'Therapist'
-                THEN (SELECT therapists.prefix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
-                ELSE NULL
+                THEN therapists.prefix
             END AS prefix,
             CASE
                 WHEN users.role = 'Therapist'
-                THEN (SELECT therapists.last_name FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
-                ELSE NULL
+                THEN therapists.last_name
             END AS last_name,
             CASE
                 WHEN users.role = 'Therapist'
-                THEN (SELECT therapists.suffix FROM therapists INNER JOIN users ON therapists.user_id = users.user_id GROUP BY therapists.prefix)
+                THEN therapists.suffix
                 ELSE NULL
             END AS suffix
-            FROM users INNER JOIN contacts ON users.user_id = contacts.contact_person_id WHERE contacts.user_id = '${user_id}' AND contacts.contact_id = '${contact_id}'`
+            FROM users INNER JOIN contacts ON users.user_id = contacts.contact_person_id
+            LEFT JOIN therapists ON users.user_id = therapists.user_id WHERE contacts.user_id = '${user_id}' AND contacts.contact_id = '${contact_id}'`
 
             db.query(sql, (err,result) => {
                 if(err) throw err;
