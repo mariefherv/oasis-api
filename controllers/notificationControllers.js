@@ -1,5 +1,4 @@
 const db = require('../index');
-const { v4: uuidv4 } = require('uuid')
 
 // view all notifications
 module.exports.viewAll = (req,res) => {
