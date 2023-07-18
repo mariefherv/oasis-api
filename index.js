@@ -12,21 +12,21 @@ app.use(express.json());
 app.use(express.urlencoded({extended : false}));
 
 // Create connection to local database
-const db = mysql.createConnection({
-    host : 'localhost',
-    user: 'root',
-    password : '',
-    database: 'oasis'
-});
+// const db = mysql.createConnection({
+//     host : 'localhost',
+//     user: 'root',
+//     password : '',
+//     database: 'oasis'
+// });
 
 // Create connection to online database
-// const db = mysql.createConnection({
-//     host : 'db4free.net',
-//     port : 3306,
-//     user: 'mariefherv',
-//     password : 'Password!',
-//     database: 'oasis_db'
-// });
+const db = mysql.createConnection({
+    host : 'db4free.net',
+    port : 3306,
+    user: 'mariefherv',
+    password : 'Password!',
+    database: 'oasis_db'
+});
 
 // Connect to MySQL Database
 db.connect((err) => {

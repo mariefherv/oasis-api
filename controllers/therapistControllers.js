@@ -1,8 +1,4 @@
 const db = require('../index');
-const bcrypt = require('bcrypt');
-const auth = require("../auth");
-const { v4: uuidv4 } = require('uuid');
-const { format, startOfWeek, parseISO, endOfWeek, startOfMonth, endOfMonth, parse } = require('date-fns');
 
 // get all therapists
 module.exports.getDetails = (req, res) => {
@@ -132,7 +128,7 @@ module.exports.getTimeSlotByDate = (req, res) => {
 //  retrieve days of slots available
 module.exports.getDays = (req, res) => {
 
-    let sql = `SELECT DISTINCT       
+    let sql = `SELECT       
         DATE_FORMAT(date, '%Y-%m-%d') AS date
     FROM slots WHERE therapist_id = ${req.params.therapist_id} AND availability=1 ORDER BY date ASC, time ASC`
 

@@ -1,6 +1,4 @@
 const db = require('../index');
-const bcrypt = require('bcrypt');
-const auth = require("../auth");
 const { v4: uuidv4 } = require('uuid');
 const { format, startOfWeek, parseISO, endOfWeek, startOfMonth, endOfMonth } = require('date-fns');
 const { zonedTimeToUtc } = require('date-fns-tz');
@@ -222,7 +220,7 @@ module.exports.getSlotsByWeek = (req, res) => {
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
-    FROM slots LEFT JOIN bookings ON slots.slot_id = bookings.slot_id LEFT JOIN users ON bookings.user_id = users.user_id WHERE date BETWEEN '${start}' AND '${end}' AND slots.therapist_id = ${therapist_id}
+    FROM slots LEFT JOIN bookings ON slots.slot_id = bookings.slot_id LEFT JOIN users ON bookings.user_id = users.user_id WHERE date BETWEEN '${start}' AND '${end}' AND slots.therapist_id = ${therapist_id} AND slots.availability = 0
     UNION
     SELECT
         NULL AS slot_id,
@@ -269,7 +267,7 @@ module.exports.getSlotsByMonth = (req, res) => {
         bookings.confirmation,
         bookings.denied,
         bookings.consultation_type
-    FROM slots LEFT JOIN bookings ON slots.slot_id = bookings.slot_id LEFT JOIN users ON bookings.user_id = users.user_id WHERE date BETWEEN '${start}' AND '${end}' AND slots.therapist_id = ${therapist_id}
+    FROM slots LEFT JOIN bookings ON slots.slot_id = bookings.slot_id LEFT JOIN users ON bookings.user_id = users.user_id WHERE date BETWEEN '${start}' AND '${end}' AND slots.therapist_id = ${therapist_id} AND slots.availability = 0
     UNION
     SELECT
         NULL AS slot_id,
