@@ -1,3 +1,4 @@
+const dayjs = require('dayjs');
 const db = require('../index');
 
 // get all therapists
@@ -112,9 +113,14 @@ module.exports.getSlotsByDate = (req, res) => {
 
 // retrieve available slot time by a given date
 module.exports.getTimeSlotByDate = (req, res) => {
-    const date = req.body.date
+    let date = req.body.date
 
-    let sql = `SELECT       
+    if(date === 'Invalid Date'){
+        date = dayjs(new Date()).format('YYYY-MM-DD')
+    }
+
+    let sql = `SELECT
+        slot_id,       
         time,
         availability
     FROM slots WHERE therapist_id = ${req.params.therapist_id} AND date='${date}' AND availability=1  ORDER BY date ASC, time ASC`
@@ -128,7 +134,8 @@ module.exports.getTimeSlotByDate = (req, res) => {
 //  retrieve days of slots available
 module.exports.getDays = (req, res) => {
 
-    let sql = `SELECT       
+    let sql = `SELECT
+        slot_id,       
         DATE_FORMAT(date, '%Y-%m-%d') AS date
     FROM slots WHERE therapist_id = ${req.params.therapist_id} AND availability=1 ORDER BY date ASC, time ASC`
 
